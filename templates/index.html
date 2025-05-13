@@ -1,158 +1,239 @@
-<!doctype html>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<title>Python Flask ReplAuth</title>
-<script src="https://replit.com/public/js/repl-auth-v2.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spam Ngl Link</title>
+  <style>
+    :root {
+      --bg-color: #0f0f0f;
+      --text-color: #ffffff;
+      --input-bg: #1e1e1e;
+      --button-color: #00ffc3;
+      --button-hover: #00b894;
+      --status-bg: #121212;
+      --status-border: #00ffc3;
+      --error-color: #ff4d4d;
+      --success-color: #00e676;
+      --done-color: #00b894;
+      --processing-color: #ffea00;
+      --warning-color: #ff8c00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0a0a0a, #121212);
+      color: var(--text-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 460px;
+      background: rgba(22, 22, 22, 0.9);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0, 255, 195, 0.2);
+      backdrop-filter: blur(4px);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 0.95rem;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+    }
+
+    input {
+      background-color: var(--input-bg);
+      color: var(--text-color);
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: transparent;
+      border: 2px solid var(--button-color);
+      color: var(--button-color);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--button-color);
+      color: black;
+    }
+
+    .status-section {
+      background-color: var(--status-bg);
+      border: 1px solid var(--status-border);
+      padding: 20px;
+      margin-top: 25px;
+      border-radius: 12px;
+      box-shadow: inset 0 0 10px rgba(0, 255, 195, 0.15);
+    }
+
+    .status-section h3 {
+      color: var(--status-border);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 8px;
+    }
+
+    .status-section pre {
+      background-color: transparent;
+      padding: 12px;
+      margin: 0;
+      color: #fff;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      height: 300px;
+      overflow-y: scroll;
+      max-width: 100%;
+      border-radius: 8px;
+      animation: colorChange 1s infinite; /* Chạy hiệu ứng màu liên tục */
+    }
+
+    @keyframes colorChange {
+      0% { color: #ff4d4d; }  /* Màu đỏ */
+      25% { color: #ff8c00; } /* Màu cam */
+      50% { color: #ffea00; } /* Màu vàng */
+      75% { color: #00e676; } /* Màu xanh lá */
+      100% { color: #00ffc3; } /* Màu xanh dương */
+    }
+
+    .error {
+      color: var(--error-color);
+    }
+
+    .success {
+      color: var(--success-color);
+    }
+
+    .done {
+      color: var(--done-color);
+    }
+
+    .processing {
+      color: var(--processing-color);
+    }
+
+    .warning {
+      color: var(--warning-color);
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 10px;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #00e0b2;
+    }
+  </style>
 </head>
 <body>
-	{% if user_id %}
-	<center>
-  <div class="box">
-    <center>
-    <div class="box-text-auth">
-      <p>
-        Hello, {{ user_name }}! ({{ user_id }})
-      </p>
+  <div class="container">
+    <h2>Spam Ngl Link</h2>
+    <form id="spamForm">
+      <label for="username">Username (ngl.link/USERNAME):</label>
+      <input type="text" id="username" required />
+
+      <label for="message">Message: (Lời Nhắn)</label>
+      <input type="text" id="message" />
+
+      <label for="count">Count: (Số Lần Spam)</label>
+      <input type="number" id="count" value="1" min="1" />
+
+      <button type="submit">Send Attack</button>
+    </form>
+
+    <div class="status-section">
+      <h3>💀 Status Attacks</h3>
+      <pre id="statusBox">Trạng thái sẽ hiển thị ở đây...</pre>
     </div>
-  <img src="{{ user_profile_image }}" width="200">
-    <center>
-  </center>
   </div>
-	{% else %}
-  <center>
-    <center>
-      <div class="box">
-        <div class="box-text">
-            <h1>Hello!</h1>
-        </div>
-        <div class="box-button">
-          <button onclick="LoginWithReplit()"> Login w/ replit</button>
-        </div>
-    </center>
-      </div>
-  </center>
 
-	{% endif %}
+  <footer>
+    © 2025, <strong>DANG XUAN GIANG</strong>, All Rights Reserved.
+  </footer>
+
+  <script>
+    document.getElementById('spamForm').addEventListener('submit', async function(e) {
+    e.preventDefault();  // Ngừng hành động mặc định của form (tránh reload trang)
+
+    const username = document.getElementById('username').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const count = document.getElementById('count').value;
+    const statusBox = document.getElementById('statusBox');
+    statusBox.innerText = "";
+
+    // Kiểm tra nếu input không rỗng
+    if (!username || !message) {
+        statusBox.innerText = "❌ Vui lòng điền đủ thông tin.";
+        return;
+    }
+
+    // Bắt đầu gửi spam
+    for (let i = 1; i <= count; i++) {
+        try {
+            statusBox.innerText += `Đã Gửi ${i}/${count}... \n`;
+
+            const res = await fetch('https://ba7ecc6d-f7b2-479f-b4de-5c0019efcd11-00-kr39rqafafe8.sisko.replit.dev/send-attack', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, message, count: 1 })
+            });
+
+            const data = await res.json();
+            const msg = data[0]?.message || `Sent ${i}/${count}`;
+            const success = data[0]?.success;
+            statusBox.innerText += `${msg} - ${success ? '✅' : '❌'}\n`;
+
+            if (success) {
+                statusBox.classList.remove('processing', 'error');
+                statusBox.classList.add('success');
+            } else {
+                statusBox.classList.remove('processing', 'success');
+                statusBox.classList.add('error');
+            }
+        } catch (err) {
+            statusBox.innerText += `Sent ${i}/${count} - ❌ (error)\n`;
+            statusBox.classList.remove('processing', 'success');
+            statusBox.classList.add('error');
+        }
+
+        await new Promise(res => setTimeout(res, 50));  // Giảm xuống 100ms để tăng tốc
+    }
+
+    statusBox.innerText += "\n✅ Done!";
+    statusBox.classList.add('done');
+    });
+  </script>
 </body>
-<style>
-  html, body {
-  height: 100%;
-  width: 100%;
-  background-color:#121212;
-}
-
-@font-face {
-  font-family: "Font";
-  src: url("https://css.replit.cool/Chess/src/fonts/Poppins-Bold[1].ttf");
-}
-
-h1{
-  font-family:"Font";
-  font-size:75px;
-  color:#00bbf9;
-}
-
-p{
-  font-family:"Font";
-  font-size:22px;
-  color:#00bbf9;
-}
-
-a{
-  font-family:"Font";
-  color:white;
-  font-size:22px;
-  text-decoration:none;
-  cursor:help;
-  text-shadow:2px 2px #00bbf9;
-}
-
-address{
-  font-family:"Font";
-  font-size:18px;
-  text-shadow:2px 2px #00bbf9;
-}
-
-summary{
-  font-family:"Font";
-  font-size:20px;
-  text-shadow:2px 2px #c400fa;
-  transition:0.7s;
-}
-
-details{
-  font-family:"Font";
-  font-size:20px;
-  text-shadow:2px 2px #c400fa;
-}
-
-::placeholder{
-  font-family:"Font";
-  font-size:25px;
-  color:#787878;
-}
-
-button{
-  width:200px;
-  height:55px;
-  font-family:"Trebuchet MS";
-  font-size:25px;
-  box-shadow:4px 4px white;
-  border-color:#00fa79;
-  color:white;
-  background-color:#00fa79;
-  border-radius:5px;
-}
-
-button:hover{
-  font-family:"Trebuchet MS";
-  font-size:25px;
-  background-color:white;
-  box-shadow:4px 4px #00fa79;
-  color:#00fa79;
-  border-radius:5px;
-  border-color:white;
-  transition:0.7s;
-}
-
-button:disabled{
-  font-family:"Trebuchet MS";
-  font-size:25px;
-  background-color:white;
-  box-shadow:4px 4px #00fa79;
-  border-radius:5px;
-  border-color:#121212;
-  cursor:not-allowed;
-  color:white;
-}
-
-.box-position{
-  position:relative;
-}
-  
-.box{
-  width:300px;
-  height:300px;
-  background-color:#495057;
-  border-radius:5px;
-  border-color:white;
-  position:relative;
-  top:150px;
-}
-
-.box-text{
-  position:relative;
-  top:60px;
-}
-
-.box-button{
-  position:relative;
-  top:20px;
-}
-
-.box-text-auth{
-  position:relative;
-  top:10px;
-}
-</style>
 </html>
