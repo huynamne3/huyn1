@@ -185,34 +185,37 @@
 
   <script>
     document.getElementById('spamForm').addEventListener('submit', async function(e) {
-    e.preventDefault();  // Ngừng hành động mặc định của form (tránh reload trang)
+    e.preventDefault();
 
     const username = document.getElementById('username').value.trim();
     const message = document.getElementById('message').value.trim();
-    const count = document.getElementById('count').value;
+    const count = parseInt(document.getElementById('count').value);
     const statusBox = document.getElementById('statusBox');
     statusBox.innerText = "";
 
-    // Kiểm tra nếu input không rỗng
     if (!username || !message) {
         statusBox.innerText = "❌ Vui lòng điền đủ thông tin.";
         return;
     }
 
-    // Bắt đầu gửi spam
+    statusBox.classList.remove('error', 'success', 'done');
+    statusBox.classList.add('processing');
+
     for (let i = 1; i <= count; i++) {
         try {
-            statusBox.innerText += `Đã Gửi ${i}/${count}... \n`;
+            statusBox.innerText += `Đã Gửi ${i}/${count}...\n`;
 
-            const res = await fetch('https://ba7ecc6d-f7b2-479f-b4de-5c0019efcd11-00-kr39rqafafe8.sisko.replit.dev/send-attack', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, message, count: 1 })
-            });
+           const res = await fetch('https://huyn1.onrender.com/send-attack', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, message, count: 1 })
+});
 
             const data = await res.json();
-            const msg = data[0]?.message || `Sent ${i}/${count}`;
-            const success = data[0]?.success;
+            const result = data.results?.[0] || {};
+            const msg = result.message || `Sent ${i}/${count}`;
+            const success = result.success;
+
             statusBox.innerText += `${msg} - ${success ? '✅' : '❌'}\n`;
 
             if (success) {
@@ -222,18 +225,20 @@
                 statusBox.classList.remove('processing', 'success');
                 statusBox.classList.add('error');
             }
+
         } catch (err) {
             statusBox.innerText += `Sent ${i}/${count} - ❌ (error)\n`;
             statusBox.classList.remove('processing', 'success');
             statusBox.classList.add('error');
         }
 
-        await new Promise(res => setTimeout(res, 50));  // Giảm xuống 100ms để tăng tốc
+        await new Promise(res => setTimeout(res, 200));  // Delay giữa các lần gửi
     }
 
     statusBox.innerText += "\n✅ Done!";
+    statusBox.classList.remove('processing');
     statusBox.classList.add('done');
-    });
+});
   </script>
 </body>
 </html>
