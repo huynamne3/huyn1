@@ -1,19 +1,11 @@
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 import requests
 import time
-import uuid
-import random
+import uuid  # để tạo deviceId
 
 app = Flask(__name__, template_folder='templates')
-
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 15_4 like Mac OS X)",
-    "Mozilla/5.0 (Linux; Android 11; SM-G991B)",
-    "Mozilla/5.0 (Windows NT 6.1; Win64; x64)",
-    "Mozilla/5.0 (X11; Linux x86_64)"
-]
+CORS(app)  # Cho phép gọi từ domain ngoài
 
 @app.route('/')
 def index():
@@ -29,9 +21,6 @@ def send_attack():
 
     results = []
     for i in range(count):
-        device_id = str(uuid.uuid4())
-        user_agent = random.choice(USER_AGENTS)
-
         headers = {
             "Host": "ngl.link",
             "accept": "*/*",
@@ -39,45 +28,32 @@ def send_attack():
             "x-requested-with": "XMLHttpRequest",
             "origin": "https://ngl.link",
             "referer": f"https://ngl.link/{username}",
-            "user-agent": user_agent
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         }
 
         payload = {
             "username": username,
             "question": message,
-            "deviceId": device_id,
+            "deviceId": str(uuid.uuid4()),  # random device ID
             "gameSlug": "",
             "referrer": ""
         }
 
-        try:
-            response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
-            print(f"[RESPONSE {i+1}] {response.status_code}: {response.text}")
+        response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
 
-            try:
-                json_resp = response.json()
-                success = json_resp.get("success", False)
-                error = json_resp.get("error", "")
-            except Exception as e:
-                success = False
-                error = str(e)
+        print(f"[{i+1}] Status Code: {response.status_code}")
+        print(f"[{i+1}] Response Text: {response.text}")
 
-            results.append({
-                'status_code': response.status_code,
-                'success': success,
-                'message': f"Sent {i+1}/{count}" + (f" - {error}" if not success else "")
-            })
+        results.append({
+            'status_code': response.status_code,
+            'success': response.status_code == 200,
+            'message': f"Sent {i+1}/{count}",
+            'response': response.text  # gửi cả response về cho frontend nếu muốn
+        })
 
-        except Exception as ex:
-            results.append({
-                'status_code': 0,
-                'success': False,
-                'message': f"Sent {i+1}/{count} - exception: {str(ex)}"
-            })
+        time.sleep(0.5)
 
-        time.sleep(1)  # Delay giữa các lần gửi để tránh bị block
-
-    return jsonify({ "results": results })
+    return jsonify(results)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=81)
