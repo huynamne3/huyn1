@@ -2,10 +2,10 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import requests
 import time
-import uuid  # để tạo deviceId
+import uuid
 
 app = Flask(__name__, template_folder='templates')
-CORS(app)  # Cho phép gọi từ domain ngoài
+CORS(app)
 
 @app.route('/')
 def index():
@@ -34,7 +34,7 @@ def send_attack():
         payload = {
             "username": username,
             "question": message,
-            "deviceId": str(uuid.uuid4()),  # random device ID
+            "deviceId": str(uuid.uuid4()),
             "gameSlug": "",
             "referrer": ""
         }
@@ -47,13 +47,13 @@ def send_attack():
         results.append({
             'status_code': response.status_code,
             'success': response.status_code == 200,
-            'message': f"Sent {i+1}/{count}",
-            'response': response.text  # gửi cả response về cho frontend nếu muốn
+            'message': f"Đã gửi {i+1}/{count}",
+            'response': response.text
         })
 
         time.sleep(0.5)
 
-    return jsonify(results)
+    return jsonify({'results': results})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=81)
