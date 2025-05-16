@@ -6,52 +6,60 @@
   <title>Spam Ngl Link By Dang Xuan Giang</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Background chữ lớn đổi màu */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body {
+      background: linear-gradient(-45deg, #1c1f3a, #2a2950, #32305a, #1a1d2f);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: #e2e8f0;
+    }
+
     @keyframes floatText {
       0%, 100% { transform: translate(-50%, -50%) rotate(-2deg); }
       50% { transform: translate(-50%, -48%) rotate(2deg); }
     }
     body::before {
       content: "DANGXUANGIANG.SITE";
-      white-space: pre-line;
       position: absolute;
       top: 50%;
       left: 50%;
       font-size: 10vw;
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.035);
+      color: rgba(255, 255, 255, 0.03);
       transform: translate(-50%, -50%);
       z-index: 0;
       text-align: center;
-      line-height: 1.1;
-      animation: floatText 10s ease-in-out infinite;
+      animation: floatText 12s ease-in-out infinite;
       pointer-events: none;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    /* Scrollbar */
     #statusBox::-webkit-scrollbar {
       width: 8px;
     }
     #statusBox::-webkit-scrollbar-thumb {
-      background: linear-gradient(135deg, #00ffc3, #00b894);
+      background: linear-gradient(135deg, #4f9fff, #6ec6ff);
       border-radius: 4px;
     }
     #statusBox::-webkit-scrollbar-track {
-      background: #121212;
+      background: #1e293b;
     }
 
-    /* Rainbow text animation */
     @keyframes rainbow {
-      0%, 100% { color: #00ffc3; }
-      25% { color: #00b894; }
-      50% { color: #00e676; }
-      75% { color: #ffea00; }
+      0%, 100% { color: #38bdf8; }
+      25% { color: #60a5fa; }
+      50% { color: #818cf8; }
+      75% { color: #22d3ee; }
     }
     .rainbow-text {
-      animation: rainbow 3s ease-in-out infinite;
+      animation: rainbow 4s ease-in-out infinite;
     }
 
-    /* Fancy button hover */
     button {
       position: relative;
       overflow: hidden;
@@ -64,7 +72,7 @@
       left: 50%;
       width: 300%;
       height: 300%;
-      background: radial-gradient(circle, #00ffc3 10%, transparent 10.01%);
+      background: radial-gradient(circle, #38bdf8 10%, transparent 10.01%);
       background-size: 50% 50%;
       transform: translate(-50%, -50%) scale(0);
       transition: transform 0.5s ease;
@@ -74,141 +82,153 @@
     button:hover::before {
       transform: translate(-50%, -50%) scale(1);
     }
-    button:hover {
-      color: black;
-    }
 
-    /* Progress bar */
     #progressBarContainer {
       height: 6px;
-      background: #1e1e1e;
+      background: #334155;
       border-radius: 3px;
       overflow: hidden;
       margin-top: 15px;
-      box-shadow: inset 0 0 5px #00ffc3aa;
+      box-shadow: inset 0 0 5px #38bdf880;
     }
     #progressBar {
       height: 100%;
-      background: linear-gradient(90deg, #00ffc3, #00b894);
+      background: linear-gradient(90deg, #38bdf8, #60a5fa);
       width: 0%;
       transition: width 0.3s ease;
     }
 
-    /* Status text */
     .status-success {
-      color: #00e676;
+      color: #22c55e;
       font-weight: 600;
     }
     .status-error {
-      color: #ff4d4d;
+      color: #ef4444;
       font-weight: 600;
     }
     .status-processing {
-      color: #ffea00;
+      color: #facc15;
       font-weight: 600;
       animation: rainbow 2.5s ease-in-out infinite;
     }
   </style>
 </head>
 
-<body class="bg-gradient-to-tr from-gray-900 via-purple-900 to-black min-h-screen flex flex-col justify-center items-center px-4 relative overflow-hidden">
+<body class="min-h-screen flex flex-col justify-center items-center px-4 relative overflow-hidden">
 
-  <div class="bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-2xl max-w-lg w-full p-10 border border-cyan-500 relative z-10">
-    <h1 class="text-5xl font-extrabold text-cyan-400 mb-8 text-center drop-shadow-lg rainbow-text">
+  <div class="bg-slate-900/70 backdrop-blur-md rounded-3xl shadow-2xl max-w-lg w-full p-10 border border-sky-500 relative z-10">
+    <h1 class="text-5xl font-extrabold text-sky-400 mb-8 text-center drop-shadow-lg rainbow-text">
       Spam <span class="text-white">NGL Link</span>
     </h1>
 
     <form id="spamForm" class="space-y-7">
       <div>
-        <label for="username" class="block mb-2 text-sm font-semibold text-gray-300">Username (ngl.link/USERNAME):</label>
-        <input type="text" id="username" required class="w-full rounded-xl border border-gray-700 bg-gray-900 text-white px-5 py-4 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition shadow-md" placeholder="Nhập username" />
+        <label for="username" class="block mb-2 text-sm font-semibold text-slate-200">Username (ngl.link/USERNAME):</label>
+        <input type="text" id="username" required class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4 focus:outline-none focus:ring-4 focus:ring-sky-300 transition shadow-md" placeholder="Nhập username" />
       </div>
 
       <div>
-        <label for="message" class="block mb-2 text-sm font-semibold text-gray-300">Message (Lời nhắn):</label>
-        <input type="text" id="message" class="w-full rounded-xl border border-gray-700 bg-gray-900 text-white px-5 py-4 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition shadow-md" placeholder="Nhập lời nhắn" />
+        <label for="message" class="block mb-2 text-sm font-semibold text-slate-200">Message (Lời nhắn):</label>
+        <input type="text" id="message" class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4 focus:outline-none focus:ring-4 focus:ring-sky-300 transition shadow-md" placeholder="Nhập lời nhắn" />
       </div>
 
       <div>
-        <label for="count" class="block mb-2 text-sm font-semibold text-gray-300">Count (Số lần spam):</label>
-        <input type="number" id="count" value="1" min="1" class="w-full rounded-xl border border-gray-700 bg-gray-900 text-white px-5 py-4 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition shadow-md" />
+        <label for="count" class="block mb-2 text-sm font-semibold text-slate-200">Count (Số lần spam):</label>
+        <input type="number" id="count" value="1" min="1" class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4 focus:outline-none focus:ring-4 focus:ring-sky-300 transition shadow-md" />
       </div>
 
-      <button type="submit" class="w-full py-4 mt-6 bg-cyan-500 font-extrabold rounded-xl shadow-lg hover:bg-cyan-600 transition relative z-10">
-        Gửi Attack
+      <button type="submit" class="w-full py-4 mt-6 bg-sky-500 font-extrabold rounded-xl shadow-lg hover:bg-sky-600 transition relative z-10 text-white">
+        Send Attack
       </button>
     </form>
 
-    <div id="progressBarContainer" aria-label="progress bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <div id="progressBarContainer">
       <div id="progressBar"></div>
     </div>
 
-    <div class="mt-8 bg-gray-900 border border-cyan-500 rounded-lg p-5 h-72 overflow-y-auto shadow-inner scrollbar-thin scrollbar-thumb-cyan-400 scrollbar-track-gray-900">
-      <h2 class="text-cyan-400 font-bold mb-3 flex items-center gap-3 text-xl select-none">
+    <div class="mt-8 bg-slate-800 border border-sky-400 rounded-lg p-5 h-72 overflow-y-auto shadow-inner">
+      <h2 class="text-sky-300 font-bold mb-3 flex items-center gap-3 text-xl select-none">
         💀 <span>Status Attacks</span>
       </h2>
-      <pre id="statusBox" class="whitespace-pre-wrap text-white text-sm select-text"></pre>
+      <pre id="statusBox" class="whitespace-pre-wrap text-slate-100 text-sm select-text"></pre>
     </div>
   </div>
 
-  <footer class="mt-12 text-center text-gray-400 text-sm z-10 select-none">
-    © 2025, <span class="font-bold text-cyan-400">DANG XUAN GIANG</span>, All Rights Reserved.
+  <footer class="mt-12 text-center text-slate-400 text-sm z-10 select-none">
+    © 2025, <span class="font-bold text-sky-400">DANG XUAN GIANG</span>, All Rights Reserved.
   </footer>
 
   <script>
-    const spamForm = document.getElementById('spamForm');
-    const statusBox = document.getElementById('statusBox');
-    const progressBar = document.getElementById('progressBar');
+  const spamForm = document.getElementById('spamForm');
+  const statusBox = document.getElementById('statusBox');
+  const progressBar = document.getElementById('progressBar');
 
-    spamForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
+  function scrollStatusToBottom() {
+    let dummy = document.getElementById('scrollDummy');
+    if (!dummy) {
+      dummy = document.createElement('div');
+      dummy.id = 'scrollDummy';
+      statusBox.appendChild(dummy);
+    }
+    dummy.scrollIntoView({ behavior: 'smooth' });
+  }
 
-      const username = document.getElementById('username').value.trim();
-      const message = document.getElementById('message').value.trim();
-      const count = parseInt(document.getElementById('count').value);
+  spamForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-      statusBox.innerHTML = '';
-      progressBar.style.width = '0%';
+    const username = document.getElementById('username').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const count = parseInt(document.getElementById('count').value);
 
-      if (!username || !message) {
-        statusBox.innerHTML = `<span class="status-error font-semibold">❌ Vui lòng điền đủ thông tin.</span>`;
-        return;
-      }
+    statusBox.innerHTML = '';
+    progressBar.style.width = '0%';
 
-      for (let i = 1; i <= count; i++) {
-        try {
-          statusBox.innerHTML += `<div class="status-processing">Đang gửi tin nhắn ${i} trên ${count}...</div>`;
-          statusBox.scrollTop = statusBox.scrollHeight;
+    if (!username || !message) {
+      statusBox.innerHTML = `<div class="status-error font-semibold">❌ Vui lòng điền đủ thông tin.</div>`;
+      scrollStatusToBottom();
+      return;
+    }
 
-          const res = await fetch('https://huyn1.onrender.com/send-attack', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, message, count: 1 })
-          });
+    for (let i = 1; i <= count; i++) {
+      const statusDiv = document.createElement('div');
+      statusDiv.classList.add('status-processing');
+      statusDiv.textContent = `Đang gửi tin nhắn ${i} trên ${count}...`;
+      statusBox.appendChild(statusDiv);
+      scrollStatusToBottom();
 
+      try {
+        const res = await fetch('https://huyn1.onrender.com/send-attack', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, message, count: 1 })
+        });
+
+        if (!res.ok) {
+          statusDiv.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi server: ${res.status}</span>`;
+        } else {
           const data = await res.json();
           const result = data.results?.[0] || {};
+          const success = Boolean(result.success);
           const msg = result.message || `Đã gửi ${i}/${count}`;
-          const success = result.success;
-
-          statusBox.innerHTML = statusBox.innerHTML.replace(
-            `Đang gửi tin nhắn ${i} trên ${count}...`,
-            `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`
-          );
-        } catch (err) {
-          statusBox.innerHTML += `<div class="status-error">Đã gửi ${i}/${count} - ❌ Lỗi kết nối</div>`;
+          statusDiv.innerHTML = `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
         }
-
-        progressBar.style.width = ((i / count) * 100) + '%';
-        progressBar.setAttribute('aria-valuenow', (i / count) * 100);
-        statusBox.scrollTop = statusBox.scrollHeight;
-
-        await new Promise(res => setTimeout(res, 200));
+      } catch (err) {
+        statusDiv.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi kết nối</span>`;
       }
 
-      statusBox.innerHTML += `<div class="status-success font-bold text-lg mt-2">✅ Hoàn thành!</div>`;
-      statusBox.scrollTop = statusBox.scrollHeight;
-    });
-  </script>
+      progressBar.style.width = ((i / count) * 100) + '%';
+      progressBar.setAttribute('aria-valuenow', (i / count) * 100);
+      scrollStatusToBottom();
+
+      await new Promise(res => setTimeout(res, 200));
+    }
+
+    const completeDiv = document.createElement('div');
+    completeDiv.classList.add('status-success', 'font-bold', 'text-lg', 'mt-2');
+    completeDiv.textContent = '✅ Hoàn thành!';
+    statusBox.appendChild(completeDiv);
+    scrollStatusToBottom();
+  });
+</script>
 </body>
 </html>
