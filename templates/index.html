@@ -159,70 +159,73 @@
   </footer>
 
   <script>
-  const spamForm = document.getElementById('spamForm');
-  const statusBox = document.getElementById('statusBox');
-  const progressBar = document.getElementById('progressBar');
+    const spamForm = document.getElementById('spamForm');
+    const statusBox = document.getElementById('statusBox');
+    const progressBar = document.getElementById('progressBar');
 
-  function scrollStatusToBottom() {
-    statusBox.scrollTo({ top: statusBox.scrollHeight, behavior: 'smooth' });
-  }
-
-  spamForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const username = document.getElementById('username').value.trim();
-    const message = document.getElementById('message').value.trim();
-    const count = parseInt(document.getElementById('count').value);
-
-    statusBox.innerHTML = '';
-    progressBar.style.width = '0%';
-
-    if (!username || !message) {
-      statusBox.innerHTML = `<div class="status-error font-semibold">❌ Vui lòng điền đủ thông tin.</div>`;
-      scrollStatusToBottom();
-      return;
+    // ✅ Hàm scroll đã sửa
+    function scrollStatusToBottom() {
+      requestAnimationFrame(() => {
+        statusBox.scrollTop = statusBox.scrollHeight;
+      });
     }
 
-    for (let i = 1; i <= count; i++) {
-      const statusDiv = document.createElement('div');
-      statusDiv.classList.add('status-processing');
-      statusDiv.textContent = `Đang gửi tin nhắn ${i} trên ${count}...`;
-      statusBox.appendChild(statusDiv);
-      scrollStatusToBottom();
+    spamForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
 
-      try {
-        const res = await fetch('https://huyn1.onrender.com/send-attack', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, message, count: 1 })
-        });
+      const username = document.getElementById('username').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const count = parseInt(document.getElementById('count').value);
 
-        if (!res.ok) {
-          statusDiv.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi server: ${res.status}</span>`;
-        } else {
-          const data = await res.json();
-          const result = data.results?.[0] || {};
-          const success = Boolean(result.success);
-          const msg = result.message || `Đã gửi ${i}/${count}`;
-          statusDiv.innerHTML = `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
-        }
-      } catch (err) {
-        statusDiv.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi kết nối</span>`;
+      statusBox.innerHTML = '';
+      progressBar.style.width = '0%';
+
+      if (!username || !message) {
+        statusBox.innerHTML = `<div class="status-error font-semibold">❌ Vui lòng điền đủ thông tin.</div>`;
+        scrollStatusToBottom();
+        return;
       }
 
-      progressBar.style.width = ((i / count) * 100) + '%';
-      progressBar.setAttribute('aria-valuenow', (i / count) * 100);
+      for (let i = 1; i <= count; i++) {
+        const statusDiv = document.createElement('div');
+        statusDiv.classList.add('status-processing');
+        statusDiv.textContent = `Đang gửi tin nhắn ${i} trên ${count}...`;
+        statusBox.appendChild(statusDiv);
+        scrollStatusToBottom();
+
+        try {
+          const res = await fetch('https://huyn1.onrender.com/send-attack', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, message, count: 1 })
+          });
+
+          if (!res.ok) {
+            statusDiv.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi server: ${res.status}</span>`;
+          } else {
+            const data = await res.json();
+            const result = data.results?.[0] || {};
+            const success = Boolean(result.success);
+            const msg = result.message || `Đã gửi ${i}/${count}`;
+            statusDiv.innerHTML = `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
+          }
+        } catch (err) {
+          statusDiv.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi kết nối</span>`;
+        }
+
+        progressBar.style.width = ((i / count) * 100) + '%';
+        progressBar.setAttribute('aria-valuenow', (i / count) * 100);
+        scrollStatusToBottom();
+
+        await new Promise(res => setTimeout(res, 200));
+      }
+
+      const completeDiv = document.createElement('div');
+      completeDiv.classList.add('status-success', 'font-bold', 'text-lg', 'mt-2');
+      completeDiv.textContent = '✅ Hoàn thành!';
+      statusBox.appendChild(completeDiv);
       scrollStatusToBottom();
-
-      await new Promise(res => setTimeout(res, 200));
-    }
-
-    const completeDiv = document.createElement('div');
-    completeDiv.classList.add('status-success', 'font-bold', 'text-lg', 'mt-2');
-    completeDiv.textContent = '✅ Hoàn thành!';
-    statusBox.appendChild(completeDiv);
-    scrollStatusToBottom();
-  });
+    });
   </script>
 </body>
 </html>
