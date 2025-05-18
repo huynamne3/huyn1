@@ -111,10 +111,6 @@
       });
     }
 
-    document.addEventListener('visibilitychange', () => {
-      console.log(document.hidden ? '🚧 Tool chạy nền...' : '🔙 Quay lại tab chính...');
-    });
-
     spamForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -132,7 +128,7 @@
       }
 
       let i = 1;
-      const interval = setInterval(async () => {
+      const interval = setInterval(() => {
         if (i > count) {
           clearInterval(interval);
           const done = document.createElement('div');
@@ -149,33 +145,34 @@
         statusBox.appendChild(div);
         scrollStatusToBottom();
 
-        try {
-          const res = await fetch('https://huyn1.onrender.com/send-attack', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, message, count: 1 })
-          });
-
-          const data = await res.json();
-          const result = data.results?.[0] || {};
-          const success = Boolean(result.success);
-          const msg = result.message || `Đã gửi ${i}/${count}`;
-
-          div.innerHTML = `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
-        } catch (err) {
+        fetch('https://huyn1.onrender.com/send-attack', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, message, count: 1 })
+        })
+        .then(res => res.json())
+      .then(data => {
+  const result = data.results?.[0] || {};
+  const success = Boolean(result.success);
+  const msg = result.message || `Đã gửi tin nhắn ${i} / ${count}`;
+  div.innerHTML = `Đã gửi tin nhắn ${i} / ${count} – <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
+})
+        .catch(() => {
           div.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi kết nối</span>`;
-        }
-
-        progressBar.style.width = `${(i / count) * 100}%`;
-        scrollStatusToBottom();
-
-        i++;
-      }, 200);
+        })
+        .finally(() => {
+          progressBar.style.width = `${(i / count) * 100}%`;
+          scrollStatusToBottom();
+          i++;
+        });
+      }, 300);
     });
   </script>
 
   <script>
-    document.addEventListener('contextmenu', e => e.preventDefault());
+    // Disable right-click
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    // Disable F12, Ctrl+Shift+I/J/U
     document.addEventListener('keydown', function(e) {
       if (e.key === 'F12' ||
           (e.ctrlKey && e.shiftKey && ['I', 'J'].includes(e.key.toUpperCase())) ||
