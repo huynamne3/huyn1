@@ -3,9 +3,23 @@ from flask_cors import CORS
 import requests
 import time
 import uuid
+import random
 
 app = Flask(__name__, template_folder='templates')
 CORS(app)
+
+RANDOM_MESSAGES = [
+    "Bạn thật tuyệt vời!", 
+    "Ai đó đang nghĩ về bạn 😘", 
+    "Thử đoán xem tôi là ai nào?", 
+    "Một người bí ẩn gửi lời chào 💌", 
+    "Chúc bạn một ngày vui vẻ!", 
+    "Bạn có đang nhớ ai không? 🤔",
+    "Tin nhắn ngẫu nhiên từ vũ trụ!",
+    "Đừng lo, mọi chuyện sẽ ổn!",
+    "Người gửi xin được giấu tên 😉",
+    "Bạn đang được theo dõi 🙈"
+]
 
 @app.route('/')
 def index():
@@ -16,7 +30,9 @@ def send_attack():
     data = request.json
     print("[REQUEST]", data)
     username = data.get('username')
-    message = data.get('message') or "Hello from bot!"
+    message = data.get('message')
+    if not message or message.strip() == "":
+        message = random.choice(RANDOM_MESSAGES)
     count = int(data.get('count', 1))
 
     results = []
