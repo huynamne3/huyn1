@@ -146,17 +146,25 @@
           });
 
           const data = await res.json();
-const result = data.results?.[0] || {};
-  const success = Boolean(result.success);
-  const msg = result.message || `Đã gửi tin nhắn ${i} / ${count}`;
-  div.innerHTML = `Đã gửi tin nhắn ${i} / ${count} – <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
-})
-        .catch(() => {
+          const result = data.results?.[0] || {};
+          const success = Boolean(result.success);
+          const msg = result.message || `Đã gửi ${i}/${count}`;
+
+          div.innerHTML = `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
+        } catch (err) {
           div.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi kết nối</span>`;
-        })
-        .finally(() => {
-          progressBar.style.width = `${(i / count) * 100}%`;
-          scrollStatusToBottom();
+        }
+
+        progressBar.style.width = `${(i / count) * 100}%`;
+        scrollStatusToBottom();
+        await new Promise(res => setTimeout(res, 150));
+      }
+
+      const done = document.createElement('div');
+      done.classList.add('status-success', 'font-bold', 'mt-3');
+      done.textContent = '✅ Hoàn tất gửi tất cả tin nhắn!';
+      statusBox.appendChild(done);
+      scrollStatusToBottom();
     });
   </script>
   <script>
