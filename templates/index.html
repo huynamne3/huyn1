@@ -6,6 +6,8 @@
   <title>Spam Ngl Link By Dang Xuan Giang</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* ... giữ nguyên CSS cũ như của bạn ... */
+    /* Chỉ thêm phần body, rainbow-text, scrollbar, animation... */
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -62,6 +64,7 @@
 </head>
 
 <body class="min-h-screen flex flex-col justify-center items-center px-4 relative overflow-hidden">
+
   <div class="bg-slate-900/70 backdrop-blur-md rounded-3xl shadow-2xl max-w-lg w-full p-10 border border-sky-500 relative z-10">
     <h1 class="text-5xl font-extrabold text-sky-400 mb-8 text-center drop-shadow-lg rainbow-text">
       Spam <span class="text-white">NGL Link</span>
@@ -89,6 +92,7 @@
       <div id="progressBar" class="h-full bg-gradient-to-r from-sky-400 to-sky-600 transition-all duration-300" style="width: 0%"></div>
     </div>
 
+    <!-- Khối log cuộn -->
     <div class="mt-8 bg-slate-800 border border-sky-400 rounded-lg p-5 h-72 overflow-y-auto shadow-inner" id="logContainer">
       <h2 class="text-sky-300 font-bold mb-3 text-xl">💀 Status Attacks</h2>
       <pre id="statusBox" class="whitespace-pre-wrap text-slate-100 text-sm"></pre>
@@ -111,7 +115,7 @@
       });
     }
 
-    spamForm.addEventListener('submit', function (e) {
+    spamForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const username = document.getElementById('username').value.trim();
@@ -127,32 +131,22 @@
         return;
       }
 
-      let i = 1;
-      const interval = setInterval(() => {
-        if (i > count) {
-          clearInterval(interval);
-          const done = document.createElement('div');
-          done.classList.add('status-success', 'font-bold', 'mt-3');
-          done.textContent = '✅ Hoàn tất gửi tất cả tin nhắn!';
-          statusBox.appendChild(done);
-          scrollStatusToBottom();
-          return;
-        }
-
+      for (let i = 1; i <= count; i++) {
         const div = document.createElement('div');
         div.classList.add('status-processing');
         div.textContent = `Đang gửi tin nhắn ${i} trên ${count}...`;
         statusBox.appendChild(div);
         scrollStatusToBottom();
 
-        fetch('https://huyn1.onrender.com/send-attack', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, message, count: 1 })
-        })
-        .then(res => res.json())
-      .then(data => {
-  const result = data.results?.[0] || {};
+        try {
+          const res = await fetch('https://huyn1.onrender.com/send-attack', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, message, count: 1 })
+          });
+
+          const data = await res.json();
+const result = data.results?.[0] || {};
   const success = Boolean(result.success);
   const msg = result.message || `Đã gửi tin nhắn ${i} / ${count}`;
   div.innerHTML = `Đã gửi tin nhắn ${i} / ${count} – <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
@@ -163,23 +157,20 @@
         .finally(() => {
           progressBar.style.width = `${(i / count) * 100}%`;
           scrollStatusToBottom();
-          i++;
-        });
-      }, 300);
     });
   </script>
-
   <script>
-    // Disable right-click
-    document.addEventListener('contextmenu', event => event.preventDefault());
-    // Disable F12, Ctrl+Shift+I/J/U
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'F12' ||
-          (e.ctrlKey && e.shiftKey && ['I', 'J'].includes(e.key.toUpperCase())) ||
-          (e.ctrlKey && e.key.toUpperCase() === 'U')) {
-        e.preventDefault();
-      }
-    });
-  </script>
+  // Disable right-click
+  document.addEventListener('contextmenu', event => event.preventDefault());
+
+  // Disable some keyboard shortcuts for devtools and view source
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J'].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && e.key.toUpperCase() === 'U')) {
+      e.preventDefault();
+    }
+  });
+</script>
 </body>
 </html>
