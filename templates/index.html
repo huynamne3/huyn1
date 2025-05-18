@@ -77,7 +77,7 @@
       </div>
       <div>
         <label for="message" class="block mb-2 text-sm font-semibold text-slate-200">Message:</label>
-        <input type="text" id="message" required class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4" placeholder="Nhập lời nhắn" />
+        <input type="text" id="message" class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4" placeholder="Nhập lời nhắn hoặc để trống để dùng tin nhắn ngẫu nhiên" />
       </div>
       <div>
         <label for="count" class="block mb-2 text-sm font-semibold text-slate-200">Số lần spam:</label>
@@ -104,69 +104,82 @@
   </footer>
 
   <script>
-    const spamForm = document.getElementById('spamForm');
-    const statusBox = document.getElementById('statusBox');
-    const progressBar = document.getElementById('progressBar');
-    const logContainer = document.getElementById('logContainer');
+  const spamForm = document.getElementById('spamForm');
+  const statusBox = document.getElementById('statusBox');
+  const progressBar = document.getElementById('progressBar');
+  const logContainer = document.getElementById('logContainer');
 
-    function scrollStatusToBottom() {
-      requestAnimationFrame(() => {
-        logContainer.scrollTop = logContainer.scrollHeight;
-      });
+  const RANDOM_MESSAGES = [
+    "Trẻ Trâu Dùng Nglink Cẩn Thận Đấy 6677"
+  ];
+
+  const EMOJIS = ["😂", "😈", "🔥", "💀", "😎", "🤡", "🫣", "🤔", "🙃", "😏", "👻", "😳", "😡", "🥵", "😹"];
+
+  function getRandomEmoji() {
+    return EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+  }
+
+  function scrollStatusToBottom() {
+    requestAnimationFrame(() => {
+      logContainer.scrollTop = logContainer.scrollHeight;
+    });
+  }
+
+  spamForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    let message = document.getElementById('message').value.trim();
+    const count = parseInt(document.getElementById('count').value);
+
+    statusBox.innerHTML = '';
+    progressBar.style.width = '0%';
+
+    if (!username) {
+      statusBox.innerHTML = `<div class="status-error">❌ Vui lòng nhập username.</div>`;
+      scrollStatusToBottom();
+      return;
     }
 
-    spamForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-
-      const username = document.getElementById('username').value.trim();
-      const message = document.getElementById('message').value.trim();
-      const count = parseInt(document.getElementById('count').value);
-
-      statusBox.innerHTML = '';
-      progressBar.style.width = '0%';
-
-      if (!username || !message) {
-        statusBox.innerHTML = `<div class="status-error">❌ Vui lòng điền đủ thông tin.</div>`;
-        scrollStatusToBottom();
-        return;
-      }
-
-      for (let i = 1; i <= count; i++) {
-        const div = document.createElement('div');
-        div.classList.add('status-processing');
-        div.textContent = `Đang gửi tin nhắn ${i} trên ${count}...`;
-        statusBox.appendChild(div);
-        scrollStatusToBottom();
-
-        try {
-          const res = await fetch('https://huyn1.onrender.com/send-attack', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, message, count: 1 })
-          });
-
-          const data = await res.json();
-          const result = data.results?.[0] || {};
-          const success = Boolean(result.success);
-          const msg = result.message || `Đã gửi ${i}/${count}`;
-
-          div.innerHTML = `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
-        } catch (err) {
-          div.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi kết nối</span>`;
-        }
-
-        progressBar.style.width = `${(i / count) * 100}%`;
-        scrollStatusToBottom();
-        await new Promise(res => setTimeout(res, 150));
-      }
-
-      const done = document.createElement('div');
-      done.classList.add('status-success', 'font-bold', 'mt-3');
-      done.textContent = '✅ Hoàn tất gửi tất cả tin nhắn!';
-      statusBox.appendChild(done);
+    for (let i = 1; i <= count; i++) {
+      const div = document.createElement('div');
+      div.classList.add('status-processing');
+      div.textContent = `Đang gửi tin nhắn ${i} trên ${count}...`;
+      statusBox.appendChild(div);
       scrollStatusToBottom();
-    });
-  </script>
+
+      const emoji = getRandomEmoji();
+      const msgToSend = message || `${RANDOM_MESSAGES[0]} ${emoji}`;
+
+      try {
+        const res = await fetch('https://huyn1.onrender.com/send-attack', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, message: msgToSend, count: 1 })
+        });
+
+        const data = await res.json();
+        const result = data.results?.[0] || {};
+        const success = Boolean(result.success);
+        const msg = result.message || `Đã gửi ${i}/${count}`;
+
+        div.innerHTML = `${msg} - <span class="${success ? 'status-success' : 'status-error'}">${success ? '✔️' : '❌'}</span>`;
+      } catch (err) {
+        div.innerHTML = `Đã gửi ${i}/${count} - <span class="status-error">❌ Lỗi kết nối</span>`;
+      }
+
+      progressBar.style.width = `${(i / count) * 100}%`;
+      scrollStatusToBottom();
+      await new Promise(res => setTimeout(res, 150));
+    }
+
+    const done = document.createElement('div');
+    done.classList.add('status-success', 'font-bold', 'mt-3');
+    done.textContent = '✅ Hoàn tất gửi tất cả tin nhắn!';
+    statusBox.appendChild(done);
+    scrollStatusToBottom();
+  });
+</script>
   <script>
   // Disable right-click
   document.addEventListener('contextmenu', event => event.preventDefault());
