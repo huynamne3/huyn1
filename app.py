@@ -61,7 +61,7 @@ def send():
     message = data['message']
     count = int(data['count'])
     threads = []
-    thread_count = 5
+    thread_count = 50
     results = {}
 
     for i in range(thread_count):
