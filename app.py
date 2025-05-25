@@ -4,7 +4,7 @@ import requests
 import time
 import uuid
 import random
-import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 app = Flask(__name__, template_folder='templates')
@@ -73,7 +73,7 @@ USER_AGENTS = [
 def index():
     return render_template('index.html')
 
-def send_single_request(username, message, results, index):
+def send_single_request(username, message, index):
     headers = {
         "Host": "ngl.link",
         "accept": "*/*",
@@ -95,20 +95,20 @@ def send_single_request(username, message, results, index):
     try:
         response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
         print(f"[{index+1}] Status Code: {response.status_code}")
-        results.append({
+        return {
             'status_code': response.status_code,
             'success': response.status_code == 200,
             'message': f"Đã gửi {index+1}",
             'response': response.text
-        })
+        }
     except Exception as e:
         print(f"[{index+1}] Error: {e}")
-        results.append({
+        return {
             'status_code': 0,
             'success': False,
             'message': f"Lỗi ở request {index+1}",
             'response': str(e)
-        })
+        }
 
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
@@ -117,16 +117,15 @@ def send_attack():
     message = data.get('message') or "Hello from bot!"
     count = int(data.get('count', 1))
 
-    threads = []
     results = []
 
-    for i in range(count):
-        thread = threading.Thread(target=send_single_request, args=(username, message, results, i))
-        thread.start()
-        threads.append(thread)
+    # Số luồng tối đa – bạn có thể chỉnh cao hơn nếu server mạnh
+    MAX_THREADS = min(30, count)  # tránh quá tải
 
-    for t in threads:
-        t.join()
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
+        for future in as_completed(futures):
+            results.append(future.result())
 
     return jsonify({'results': results})
 
