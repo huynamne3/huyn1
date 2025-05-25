@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import requests
+import cloudscraper
 import time
 import uuid
 
@@ -19,10 +19,10 @@ def send_attack():
     message = data.get('message') or "Hello from bot!"
     count = int(data.get('count', 1))
 
+    scraper = cloudscraper.create_scraper()
     results = []
     for i in range(count):
         headers = {
-            "Host": "ngl.link",
             "accept": "*/*",
             "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
             "x-requested-with": "XMLHttpRequest",
@@ -39,7 +39,7 @@ def send_attack():
             "referrer": ""
         }
 
-        response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
+        response = scraper.post("https://ngl.link/api/submit", headers=headers, data=payload)
 
         print(f"[{i+1}] Status Code: {response.status_code}")
         print(f"[{i+1}] Response Text: {response.text}")
@@ -51,7 +51,7 @@ def send_attack():
             'response': response.text
         })
 
-        time.sleep(0.5)
+        time.sleep(1.5)  # tăng delay để tránh bị block
 
     return jsonify({'results': results})
 
