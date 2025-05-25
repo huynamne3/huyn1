@@ -5,7 +5,6 @@ import requests
 import time
 
 app = Flask(__name__, template_folder='templates')
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -23,7 +22,8 @@ def get_proxy():
 
 def send_message(username, message, count, results, thread_id):
     sent = 0
-    for _ in range(count):
+    for i in range(count):
+        proxy = get_proxy()
         try:
             response = requests.post(
                 'https://ngl.link/api/submit',
@@ -39,16 +39,20 @@ def send_message(username, message, count, results, thread_id):
                     'gameSlug': '',
                     'referrer': ''
                 },
-                proxies=get_proxy(),
+                proxies=proxy,
                 timeout=10,
                 verify=False
             )
             if response.status_code == 200:
                 sent += 1
-        except:
-            continue
+                print(f"[Thread {thread_id}] Sent {i+1}/{count} ✅ via {proxy['http']}")
+            else:
+                print(f"[Thread {thread_id}] Failed {i+1}/{count} ❌ Status: {response.status_code}")
+        except Exception as e:
+            print(f"[Thread {thread_id}] Lỗi kết nối {i+1}/{count} ❌ Proxy: {proxy['http']} | Error: {e}")
         time.sleep(random.uniform(0.2, 0.5))
     results[thread_id] = sent
+
 
 @app.route('/send', methods=['POST'])
 def send():
@@ -57,7 +61,7 @@ def send():
     message = data['message']
     count = int(data['count'])
     threads = []
-    thread_count = 50  # Sửa thành 50 thread
+    thread_count = 5
     results = {}
 
     for i in range(thread_count):
@@ -72,29 +76,5 @@ def send():
     total_sent = sum(results.values())
     return jsonify({"success": True, "sent": total_sent})
 
-# Hàm check proxy sống/chết
-def check_proxy(proxy):
-    try:
-        response = requests.get(
-            'https://httpbin.org/ip',
-            proxies={"http": f"http://{proxy}", "https": f"http://{proxy}"},
-            timeout=5
-        )
-        if response.status_code == 200:
-            print(f"[OK] Proxy hoạt động: {proxy}")
-        else:
-            print(f"[FAIL] Proxy lỗi: {proxy}")
-    except:
-        print(f"[FAIL] Proxy lỗi: {proxy}")
-
-# Hàm test toàn bộ proxy
-def test_all_proxies():
-    with open("proxy.txt", "r") as f:
-        proxies = [line.strip() for line in f if line.strip()]
-
-    for proxy in proxies:
-        check_proxy(proxy)
-
 if __name__ == '__main__':
-    # test_all_proxies()  # Bỏ comment dòng này nếu muốn test proxy trước khi chạy app
     app.run(debug=True)
