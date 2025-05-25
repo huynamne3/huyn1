@@ -5,6 +5,7 @@ import requests
 import time
 
 app = Flask(__name__, template_folder='templates')
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -40,7 +41,7 @@ def send_message(username, message, count, results, thread_id):
                 },
                 proxies=get_proxy(),
                 timeout=10,
-                verify=False  # bỏ SSL check để tránh lỗi proxy
+                verify=False
             )
             if response.status_code == 200:
                 sent += 1
@@ -56,7 +57,7 @@ def send():
     message = data['message']
     count = int(data['count'])
     threads = []
-    thread_count = 5
+    thread_count = 50  # Sửa thành 50 thread
     results = {}
 
     for i in range(thread_count):
@@ -71,5 +72,29 @@ def send():
     total_sent = sum(results.values())
     return jsonify({"success": True, "sent": total_sent})
 
+# Hàm check proxy sống/chết
+def check_proxy(proxy):
+    try:
+        response = requests.get(
+            'https://httpbin.org/ip',
+            proxies={"http": f"http://{proxy}", "https": f"http://{proxy}"},
+            timeout=5
+        )
+        if response.status_code == 200:
+            print(f"[OK] Proxy hoạt động: {proxy}")
+        else:
+            print(f"[FAIL] Proxy lỗi: {proxy}")
+    except:
+        print(f"[FAIL] Proxy lỗi: {proxy}")
+
+# Hàm test toàn bộ proxy
+def test_all_proxies():
+    with open("proxy.txt", "r") as f:
+        proxies = [line.strip() for line in f if line.strip()]
+
+    for proxy in proxies:
+        check_proxy(proxy)
+
 if __name__ == '__main__':
+    # test_all_proxies()  # Bỏ comment dòng này nếu muốn test proxy trước khi chạy app
     app.run(debug=True)
