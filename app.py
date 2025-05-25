@@ -24,7 +24,8 @@ def send_attack():
             "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
             "x-requested-with": "XMLHttpRequest",
             "origin": "https://ngl.link",
-            "referer": f"https://ngl.link/{username}"
+            "referer": f"https://ngl.link/{username}",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         }
 
         payload = {
@@ -36,14 +37,23 @@ def send_attack():
         }
 
         response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
+
+        try:
+            json_resp = response.json()
+            success = json_resp.get("success", False)
+            error = json_resp.get("error", "")
+        except Exception as e:
+            success = False
+            error = str(e)
+
         results.append({
             'status_code': response.status_code,
-            'success': response.status_code == 200,
-            'message': f"Sent {i+1}/{count}"
+            'success': success,
+            'message': f"Sent {i+1}/{count}" + (f" - {error}" if not success else "")
         })
         time.sleep(0.5)
 
-    return jsonify(results)
+    return jsonify({ "results": results })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=81)
