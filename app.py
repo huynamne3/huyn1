@@ -5,11 +5,9 @@ import requests
 import time
 
 app = Flask(__name__, template_folder='templates')
-
 @app.route('/')
 def index():
     return render_template('index.html')
-proxies = []
 
 def load_proxies():
     global proxies
