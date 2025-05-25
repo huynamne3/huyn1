@@ -50,7 +50,7 @@ def send_message(username, message, count, results, thread_id):
                 print(f"[Thread {thread_id}] Failed {i+1}/{count} ❌ Status: {response.status_code}")
         except Exception as e:
             print(f"[Thread {thread_id}] Lỗi kết nối {i+1}/{count} ❌ Proxy: {proxy['http']} | Error: {e}")
-        time.sleep(random.uniform(0.2, 0.5))
+        time.sleep(random.uniform(5, 10))
     results[thread_id] = sent
 
 
