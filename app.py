@@ -116,12 +116,17 @@ def send_attack():
     username = data.get('username')
     message = data.get('message') or "Hello from bot!"
     count = int(data.get('count', 1))
-
     results = []
 
-    # Số luồng tối đa – bạn có thể chỉnh cao hơn nếu server mạnh
-    MAX_THREADS = min(30, count)  # tránh quá tải
-
+    MAX_THREADS = min(30, count)
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
-        if __name__ == '__main__':
+        futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
+        for future in as_completed(futures):
+            results.append(future.result())
+
+    return jsonify({'results': results})
+
+# ✅ PHẢI đặt ngoài hàm
+if __name__ == '__main__':
     app.run(debug=True)
+
