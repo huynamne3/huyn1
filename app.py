@@ -111,21 +111,31 @@ def send_single_request(username, message, index):
 
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
-    data = request.json
-    username = data.get('username')
-    message = data.get('message') or "Hello from bot!"
-    count = int(data.get('count', 1))
+    try:
+        data = request.json
+        print("[DEBUG] Dữ liệu nhận được:", data)
 
-    results = []
-    MAX_THREADS = min(30, count)  # Giới hạn số thread tối đa để tránh quá tải
+        username = data.get('username')
+        message = data.get('message') or "Hello from bot!"
+        count = int(data.get('count', 1))
 
-    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
-        futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
-        for future in as_completed(futures):
-            res = future.result()
-            results.append(res)
+        if not username or count <= 0:
+            return jsonify({'error': 'Thiếu username hoặc count không hợp lệ'}), 400
 
-    return jsonify({'results': results})
+        results = []
+        MAX_THREADS = min(200, count)
+        start_time = time.time()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=81)
+        with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+            futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
+            for future in as_completed(futures):
+                res = future.result()
+                results.append(res)
+
+        duration = round(time.time() - start_time, 2)
+        return jsonify({'results': results, 'time_taken': f"{duration}s"})
+
+    except Exception as e:
+        print("[ERROR] Lỗi tại /send-attack:", e)
+        return jsonify({'error': str(e)}), 500
+
