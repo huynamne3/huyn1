@@ -72,53 +72,58 @@ USER_AGENTS = [
 def index():
     return render_template('index.html')
 
+def send_single_request(username, message, index):
+    headers = {
+        "Host": "ngl.link",
+        "accept": "*/*",
+        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "x-requested-with": "XMLHttpRequest",
+        "origin": "https://ngl.link",
+        "referer": f"https://ngl.link/{username}",
+        "user-agent": random.choice(USER_AGENTS)
+    }
+
+    payload = {
+        "username": username,
+        "question": message,
+        "deviceId": str(uuid.uuid4()),
+        "gameSlug": "",
+        "referrer": ""
+    }
+
+    try:
+        response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
+        print(f"[{index+1}] Status Code: {response.status_code}")
+        return {
+            'status_code': response.status_code,
+            'success': response.status_code == 200,
+            'message': f"Đã gửi {index+1}",
+            'response': response.text
+        }
+    except Exception as e:
+        print(f"[{index+1}] Error: {e}")
+        return {
+            'status_code': 0,
+            'success': False,
+            'message': f"Lỗi ở request {index+1}",
+            'response': str(e)
+        }
+
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
     data = request.json
-    print("[REQUEST]", data)
     username = data.get('username')
     message = data.get('message') or "Hello from bot!"
     count = int(data.get('count', 1))
 
     results = []
-    for i in range(count):
-        # Chọn random user-agent mỗi lần gửi
-        user_agent = random.choice(USER_AGENTS)
-        headers = {
-            "Host": "ngl.link",
-            "accept": "*/*",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "x-requested-with": "XMLHttpRequest",
-            "origin": "https://ngl.link",
-            "referer": f"https://ngl.link/{username}",
-            "user-agent": user_agent
-        }
+    MAX_THREADS = min(30, count)  # Giới hạn số thread tối đa để tránh quá tải
 
-        payload = {
-            "username": username,
-            "question": message,
-            "deviceId": str(uuid.uuid4()),
-            "gameSlug": "",
-            "referrer": ""
-        }
-
-        try:
-            response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
-            print(f"[{i+1}] Status Code: {response.status_code}")
-            print(f"[{i+1}] Response Text: {response.text}")
-        except Exception as e:
-            print(f"[{i+1}] Lỗi gửi: {e}")
-            response = type('obj', (object,), {'status_code': 500, 'text': str(e)})
-
-        results.append({
-            'status_code': response.status_code,
-            'success': response.status_code == 200,
-            'message': f"Đã gửi {i+1}/{count}",
-            'response': response.text
-        })
-
-        # Delay nhỏ để tránh bị chặn, có thể giảm xuống 0.3 hoặc thấp hơn
-        time.sleep(0.5)
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
+        for future in as_completed(futures):
+            res = future.result()
+            results.append(res)
 
     return jsonify({'results': results})
 
