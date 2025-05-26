@@ -180,18 +180,47 @@
 spamForm.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const username = document.getElementById('username').value.trim(); // ✅ THÊM DÒNG NÀY
-  let message = document.getElementById('message').value.trim();
-  const count = parseInt(document.getElementById('count').value);
+// Lấy username từ input
+const username = document.getElementById('username').value.trim();
+let message = document.getElementById('message').value.trim();
+const useEmoji = document.getElementById('useEmoji').checked;
+const count = parseInt(document.getElementById('count').value);
 
-  statusBox.innerHTML = '';
-  progressBar.style.width = '0%';
+if (useEmoji) {
+    message +=   "🗿", "🥶", "💀", "☠️", "👽", "🤡", "🦍", "🫥", "😶‍🌫️", "🌚", "🌝", "🤨", "🥴", "🤯", "🥸", "🤪", "🫠",
+  "🤣", "😂", "😹", "😈", "😏", "🙃", "🥵", "😭", "😱", "😳", "😡", "🤔", "😴", "🤤", "🥳", "🤡", "🦧","🖕",
+  "🦹‍♂️", "🦹‍♀️", "🧙‍♂️", "🧙‍♀️", "🧛‍♂️", "🧛‍♀️", "🧟‍♂️", "🧟‍♀️", "🧞‍♂️", "🧞‍♀️", "🧜‍♂️", "🧜‍♀️",
+  "🤖", "👹", "👺", "🎃", "👻", "💩", "🤢", "🤮", "🤧", "🥶", "😵‍💫", "🫡", "🫶", "🫨", "🤌", "🫰", "🦄",
+  // Anime / Nhật Bản vibe
+  "✨", "🌸", "🍥", "🎐", "🦊", "👺", "👘", "🉐", "💮", "🍡", "🍶", "🈳", "🥷", "🎏", "🌙", "🎴", "🪄", "🦉",
+  // Vũ khí / hắc ám
+  "🔪", "🗡️", "⚔️", "🪓", "🛡️", "💣", "🧨", "🦴", "🧪", "☣️", "⚰️", "🕸️", "🔮", "🕷️", "⚡", "🪤", "🪃",
+  "🗝️", "🛠️", "⚙️", "🧰", "🧲", "🪃", "🏹", "🛡️", "🪓", "💥", "🔥", "💨",
+  // Siêu dị / weird stuff
+  "🦇", "🌑", "🛸", "🚀", "🎃", "🎭", "🖤", "☯️", "♾️", "🕉️", "✡️", "☦️", "🛐", "⚱️", "📿", "🪦", "🪬", "🕯️",
+  "🐉", "🐲", "🐺", "🦊", "🐴", "🦄", "🦌", "🐝", "🐛", "🦋", "🐌", "🐞", "🦗", "🦂", "🦟", "🦠", "🦴",
+  // Sports / games
+  "⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🥏", "🎱", "🏓", "🏸", "🥅", "🥊", "🥋", "🎽", "⛸️", "🎿", "🏂",
+  "🎮", "🕹️", "🎰", "🎲", "🧩", "♟️", "🃏", "🀄", "🎴",
+  // Animals
+  "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🙈", "🙉", "🙊",
+  "🐒", "🦍", "🦧", "🐔", "🐧", "🦆", "🦅", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🐛", "🦋", "🐌", "🐞",
+  // Food & drink
+  "🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝",
+  "🍔", "🍟", "🌭", "🍕", "🥪", "🌮", "🌯", "🥗", "🥘", "🍣", "🍱", "🍤", "🍙", "🍚", "🍜", "🍛",
+  // Tech & misc
+  "🖥️", "📱", "💻", "🖨️", "🧮", "📷", "🔊", "🎧", "🎤", "🎸", "🥁", "🎷", "🎺", "🎻", "📀", "💿",
+  "🎶", "🎵", "🎼", "🔔", "📢", "📣", "📡", "🔋", "🔌", "💡", "🔦", "🧯", "🛢️", "💣",
+  // Faces & expressions thêm cực nhiều
+  "😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃", "😉", "😊", "😇", "🥰", "😍", "🤩", "😘", "😗", "☺️",
+  "😚", "😙", "😋", "😛", "😜", "🤪", "😝", "🤑", "🤗", "🤭", "🤫", "🤔", "🤐", "🤨", "😐", "😑", "😶",
+  "😏", "😒", "🙄", "😬", "🤥", "😌", "😔", "😪", "🤤", "😴", "😷", "🤒", "🤕", "🤢", "🤮", "🤧",
+  "🥵", "🥶", "🥴", "😵", "🤯", "🤠", "🥳", "😎", "🤓", "🧐", "😕", "😟", "🙁", "😮", "😯", "😲", "😳",
+  "🥺", "😦", "😧", "😨", "😰", "😥", "😢", "😭", "😱", "😖", "😣", "😞", "😓", "😩", "😫", "😤", "😡",
+  "😠", "🤬", "😈", "👿", "💀", "☠️", "💩", "🤡", "👹", "👺", "👻", "👽", "👾", "🤖"
+}
 
-  if (!username) {
-    statusBox.innerHTML = `<div class="status-error">❌ Vui lòng nhập username.</div>`;
-    scrollStatusToBottom();
-    return;
-  }
+// Kiểm tra định dạng
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
 if (!usernameRegex.test(username)) {
   statusBox.innerHTML = `<div class="status-error">⚠️ Username không hợp lệ. Chỉ được chứa chữ cái, số và dấu _ (không dấu cách hay ký tự đặc biệt).</div>`;
@@ -199,13 +228,22 @@ if (!usernameRegex.test(username)) {
   return;
 }
 
-// Check tồn tại username trên ngl.link
-const checkUsernameExists = await fetch(`https://ngl.link/${username}`, { method: 'GET' });
-if (!checkUsernameExists.ok) {
-  statusBox.innerHTML = `<div class="status-error">⚠️ Username <b>${username}</b> không tồn tại trên ngl.link.</div>`;
+// Gửi request kiểm tra username lên server Flask
+try {
+  const res = await fetch(`/check-username?username=${username}`);
+  const data = await res.json();
+
+  if (!data.exists) {
+    statusBox.innerHTML = `<div class="status-error">⚠️ Username <b>${username}</b> không tồn tại trên ngl.link.</div>`;
+    scrollStatusToBottom();
+    return;
+  }
+} catch (err) {
+  statusBox.innerHTML = `<div class="status-error">❌ Lỗi khi kiểm tra username: ${err.message}</div>`;
   scrollStatusToBottom();
   return;
 }
+
 
 
     for (let i = 1; i <= count; i++) {
