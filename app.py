@@ -86,17 +86,6 @@ def send_single_request(username, message, index):
             'response': str(e)
         }
 
-@app.route('/check-username')
-def check_username():
-    username = request.args.get('username')
-    try:
-        headers = { "User-Agent": random.choice(USER_AGENTS) }
-        proxy = get_random_proxy()
-        res = requests.get(f"https://ngl.link/{username}", headers=headers, proxies=proxy, timeout=10)
-        return jsonify({'exists': res.status_code == 200 and "This page isn't available" not in res.text})
-    except Exception as e:
-        return jsonify({'exists': False, 'error': str(e)}), 500
-
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
     try:
@@ -111,9 +100,6 @@ def send_attack():
         # Check once before starting attacks
         headers = { "User-Agent": random.choice(USER_AGENTS) }
         proxy = get_random_proxy()
-        check_response = requests.get(f"https://ngl.link/{username}", headers=headers, proxies=proxy, timeout=10)
-        if check_response.status_code != 200 or "This page isn't available" in check_response.text:
-            return jsonify({'error': f'Username {username} không tồn tại trên ngl.link.'}), 400
 
         results = []
         MAX_THREADS = min(20, count)
