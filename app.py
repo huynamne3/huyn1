@@ -181,5 +181,8 @@ def send_attack():
 
     return jsonify({'results': results})
 
+import os
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=81)
+    port = int(os.environ.get("PORT", 10000))  # Lấy cổng từ biến môi trường
+    app.run(host='0.0.0.0', port=port)
