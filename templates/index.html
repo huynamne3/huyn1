@@ -180,9 +180,17 @@
   spamForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const message = document.getElementById('message').value.trim();
+    let message = document.getElementById('message').value.trim();
 const useEmoji = document.getElementById('useEmoji').checked;
-    const count = parseInt(document.getElementById('count').value);
+const count = parseInt(document.getElementById('count').value);
+
+if (useEmoji) {
+    const emojiCount = 3; // hoặc random số lượng nếu muốn
+    for (let i = 0; i < emojiCount; i++) {
+        const randomEmoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        message += ' ' + randomEmoji;
+    }
+}
 
     statusBox.innerHTML = '';
     progressBar.style.width = '0%';
