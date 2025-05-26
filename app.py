@@ -1,31 +1,28 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import requests, uuid, time, random
-from concurrent.futures import ThreadPoolExecutor
+import requests
+import time
+import uuid
+import random
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 CORS(app)
 
+# Danh sách User-Agent đa dạng
 USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114 Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/90 Safari/537.36",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0) AppleWebKit/605.1.15 Mobile/15A5341f Safari/604.1"
+    # (Danh sách user agents bạn đã đưa vào đây, giữ nguyên)
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114.0.5735.110 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15",
+    # ... (giữ nguyên tất cả user agents như code bạn gửi)
+    "DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)"
 ]
 
-EMOJIS = ["😂", "🤣", "😎", "💀", "🔥", "🤡", "👻", "😈", "👽", "🫠", "🥶", "😱"]
-MESSAGES = [
-    "Đã 6677 rồi còn dùng nglink trẻ trâu hả em",
-    "Còn dùng ngl là còn FA",
-    "Rep đi chứ để làm gì :))",
-    "Ngầu vậy mà cần ẩn danh à?"
-]
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-def get_random_message():
-    msg = random.choice(MESSAGES)
-    emojis = ' '.join(random.choices(EMOJIS, k=random.randint(1, 3)))
-    return f"{msg} {emojis}"
-
-def send_single(username, message, proxy, index):
+def send_single_request(username, message, index):
     headers = {
         "Host": "ngl.link",
         "accept": "*/*",
@@ -35,6 +32,7 @@ def send_single(username, message, proxy, index):
         "referer": f"https://ngl.link/{username}",
         "user-agent": random.choice(USER_AGENTS)
     }
+
     payload = {
         "username": username,
         "question": message,
@@ -42,67 +40,42 @@ def send_single(username, message, proxy, index):
         "gameSlug": "",
         "referrer": ""
     }
-    proxies = {
-        "http": f"http://{proxy}",
-        "https": f"http://{proxy}"
-    }
 
     try:
-        res = requests.post("https://ngl.link/api/submit", headers=headers, data=payload, proxies=proxies, timeout=10)
+        response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
+        print(f"[{index+1}] Status Code: {response.status_code}")
         return {
-            'success': res.status_code == 200,
-            'message': f"Đã gửi {index + 1}",
-            'code': res.status_code
+            'status_code': response.status_code,
+            'success': response.status_code == 200,
+            'message': f"Đã gửi {index+1}",
+            'response': response.text
         }
     except Exception as e:
+        print(f"[{index+1}] Error: {e}")
         return {
+            'status_code': 0,
             'success': False,
-            'message': f"Lỗi gửi {index + 1}",
-            'error': str(e)
+            'message': f"Lỗi ở request {index+1}",
+            'response': str(e)
         }
 
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
     data = request.json
     username = data.get('username')
-    user_message = data.get('message')
-    total = int(data.get('count', 1))
-
-    if not username or total <= 0:
-        return jsonify({'error': 'Thiếu username hoặc số lượng không hợp lệ'}), 400
-
-    # Load proxies
-    with open('live_proxies.txt', 'r') as f:
-        proxy_list = [line.strip() for line in f if line.strip()]
-
-    jobs = []
-    index = 0
-
-    for proxy in proxy_list:
-        for _ in range(50):  # 3 thread per proxy
-            if index >= total:
-                break
-            msg = user_message or get_random_message()
-            jobs.append((username, msg, proxy, index))
-            index += 1
-        if index >= total:
-            break
+    message = data.get('message') or "Hello from bot!"
+    count = int(data.get('count', 1))
 
     results = []
-    start_time = time.time()
-    with ThreadPoolExecutor(max_workers=len(jobs)) as executor:
-        futures = [executor.submit(send_single, *job) for job in jobs]
-        for f in futures:
-            results.append(f.result())
+    MAX_THREADS = min(30, count)  # Giới hạn số thread tối đa để tránh quá tải
 
-    return jsonify({
-        'results': results,
-        'time_taken': f"{round(time.time() - start_time, 2)}s"
-    })
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
+        for future in as_completed(futures):
+            res = future.result()
+            results.append(res)
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+    return jsonify({'results': results})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=81)
