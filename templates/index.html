@@ -186,10 +186,12 @@ let message = document.getElementById('message').value.trim();
 const useEmoji = document.getElementById('useEmoji').checked;
 const count = parseInt(document.getElementById('count').value);
 
+let finalMessage = message;
+
 if (useEmoji) {
-  const emojiCount = 3; // có thể random thêm nếu muốn
+  const emojiCount = 3;
   for (let i = 0; i < emojiCount; i++) {
-    message += ' ' + getRandomEmoji();
+    finalMessage += ' ' + getRandomEmoji();
   }
 }
 
@@ -228,9 +230,8 @@ try {
       scrollStatusToBottom();
 
       const emoji = getRandomEmoji();
-      const msgToSend = message || (useEmoji 
-  ? `${randomMsg} ${Array.from({ length: 3 }, () => getRandomEmoji()).join(' ')}`
-  : randomMsg);
+      const msgToSend = (message + ' ' + (useEmoji ? getRandomEmoji() + ' ' + getRandomEmoji() + ' ' + getRandomEmoji() : '')).trim() || 
+                  `${randomMsg} ${getRandomEmoji()} ${getRandomEmoji()} ${getRandomEmoji()}`;
 
       try {
         const res = await fetch('https://huyn1.onrender.com/send-attack', {
