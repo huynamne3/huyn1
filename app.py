@@ -114,8 +114,6 @@ def send_single_request(username, message, index):
 @app.route('/check-username')
 def check_username():
     username = request.args.get('username')
-    response = requests.get(f'https://ngl.link/{username}')
-    return jsonify({ "exists": response.ok })
 
     try:
         headers = {
