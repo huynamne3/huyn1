@@ -13577,18 +13577,6 @@ def send_attack():
         message = data.get('message')
         count = int(data.get('count', 1))
 
-        if not username or count <= 0:
-            return jsonify({'error': 'Thiếu username hoặc count không hợp lệ'}), 400
-
-        check_response = requests.get(
-            f"https://ngl.link/{username}",
-            headers={"User-Agent": random.choice(USER_AGENTS)},
-            proxies=get_random_proxy(),
-            timeout=5
-        )
-        if check_response.status_code != 200 or "This page isn't available" in check_response.text:
-            return jsonify({'error': f'Username {username} không tồn tại trên ngl.link.'}), 400
-
         results = []
         MAX_THREADS = min(50, count)
         start_time = time.time()
