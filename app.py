@@ -149,7 +149,7 @@ def send_attack():
             return jsonify({'error': f'Username {username} không tồn tại trên ngl.link.'}), 400
 
         results = []
-        MAX_THREADS = min(200, count)
+        MAX_THREADS = min(50, count)
         start_time = time.time()
 
         with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
