@@ -177,30 +177,21 @@
     });
   }
 
-  spamForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
+spamForm.addEventListener('submit', async function (e) {
+  e.preventDefault();
 
-    let message = document.getElementById('message').value.trim();
-const useEmoji = document.getElementById('useEmoji').checked;
-const count = parseInt(document.getElementById('count').value);
+  const username = document.getElementById('username').value.trim(); // ✅ THÊM DÒNG NÀY
+  let message = document.getElementById('message').value.trim();
+  const count = parseInt(document.getElementById('count').value);
 
-if (useEmoji) {
-    const emojiCount = 3; // hoặc random số lượng nếu muốn
-    for (let i = 0; i < emojiCount; i++) {
-        const randomEmoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-        message += ' ' + randomEmoji;
-    }
-}
+  statusBox.innerHTML = '';
+  progressBar.style.width = '0%';
 
-    statusBox.innerHTML = '';
-    progressBar.style.width = '0%';
-
-if (!username) {
-  statusBox.innerHTML = `<div class="status-error">❌ Vui lòng nhập username.</div>`;
-  scrollStatusToBottom();
-  return;
-}
-
+  if (!username) {
+    statusBox.innerHTML = `<div class="status-error">❌ Vui lòng nhập username.</div>`;
+    scrollStatusToBottom();
+    return;
+  }
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
 if (!usernameRegex.test(username)) {
   statusBox.innerHTML = `<div class="status-error">⚠️ Username không hợp lệ. Chỉ được chứa chữ cái, số và dấu _ (không dấu cách hay ký tự đặc biệt).</div>`;
