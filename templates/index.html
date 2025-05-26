@@ -187,6 +187,8 @@ const useEmoji = document.getElementById('useEmoji').checked;
 const count = parseInt(document.getElementById('count').value);
 
 if (useEmoji) {
+    const emojiCount = 3; // hoặc random số lượng nếu muốn
+    for (let i = 0; i < emojiCount; i++) {
     message +=   "🗿", "🥶", "💀", "☠️", "👽", "🤡", "🦍", "🫥", "😶‍🌫️", "🌚", "🌝", "🤨", "🥴", "🤯", "🥸", "🤪", "🫠",
   "🤣", "😂", "😹", "😈", "😏", "🙃", "🥵", "😭", "😱", "😳", "😡", "🤔", "😴", "🤤", "🥳", "🤡", "🦧","🖕",
   "🦹‍♂️", "🦹‍♀️", "🧙‍♂️", "🧙‍♀️", "🧛‍♂️", "🧛‍♀️", "🧟‍♂️", "🧟‍♀️", "🧞‍♂️", "🧞‍♀️", "🧜‍♂️", "🧜‍♀️",
@@ -254,7 +256,8 @@ try {
       scrollStatusToBottom();
 
       const emoji = getRandomEmoji();
-      const msgToSend = message || (useEmoji ? `${RANDOM_MESSAGES[0]} ${emoji}` : RANDOM_MESSAGES[0]);
+      const randomMsg = RANDOM_MESSAGES[Math.floor(Math.random() * RANDOM_MESSAGES.length)];
+const msgToSend = message || (useEmoji ? `${randomMsg} ${getRandomEmoji()} ${getRandomEmoji()} ${getRandomEmoji()}` : randomMsg);
 
       try {
         const res = await fetch('https://huyn1.onrender.com/send-attack', {
