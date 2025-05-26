@@ -30,7 +30,7 @@ RANDOM_MESSAGES = [
 
 # Load proxies from file (only IP:PORT format, no http://)
 with open("live_proxies.txt", "r") as f:
-    PROXIES_LIST = [line.strip() for line in f if line.strip()]
+    proxies = [line.strip() for line in f if line.strip()]
 
 def get_random_message():
     msg = random.choice(RANDOM_MESSAGES)
