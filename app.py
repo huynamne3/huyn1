@@ -1,53 +1,31 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import requests
-import time
-import uuid
-import random
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests, uuid, time, random
+from concurrent.futures import ThreadPoolExecutor
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__)
 CORS(app)
 
-# Danh sách User-Agent
 USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114.0.5735.110 Safari/537.36",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 Version/14.0 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114 Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/90 Safari/537.36",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0) AppleWebKit/605.1.15 Mobile/15A5341f Safari/604.1"
 ]
 
-# Danh sách emoji và message
 EMOJIS = ["😂", "🤣", "😎", "💀", "🔥", "🤡", "👻", "😈", "👽", "🫠", "🥶", "😱"]
 MESSAGES = [
-    "Đã 6677 rồi còn dùng nglink trẻ trâu thế hệ mới hả em",
-    "Còn sống ảo tới bao giờ?",
-    "Dùng ngl nhìn là biết FA",
-    "Rep tin nhắn đi má!",
-    "Bỏ cái app trẻ trâu này đi!"
+    "Đã 6677 rồi còn dùng nglink trẻ trâu hả em",
+    "Còn dùng ngl là còn FA",
+    "Rep đi chứ để làm gì :))",
+    "Ngầu vậy mà cần ẩn danh à?"
 ]
-
-# Đọc proxy từ file
-def load_proxies():
-    try:
-        with open("live_proxies.txt", "r") as f:
-            return [line.strip() for line in f if line.strip()]
-    except Exception as e:
-        print("[ERROR] Load proxy:", e)
-        return []
-
-PROXIES = load_proxies()
 
 def get_random_message():
     msg = random.choice(MESSAGES)
-    emoji = " ".join(random.choices(EMOJIS, k=random.randint(1, 3)))
-    return f"{msg} {emoji}"
+    emojis = ' '.join(random.choices(EMOJIS, k=random.randint(1, 3)))
+    return f"{msg} {emojis}"
 
-def send_single_request(username, message, index):
-    proxy = random.choice(PROXIES)
-    proxies = {
-        "http": f"http://{proxy}",
-        "https": f"http://{proxy}"
-    }
-
+def send_single(username, message, proxy, index):
     headers = {
         "Host": "ngl.link",
         "accept": "*/*",
@@ -57,7 +35,6 @@ def send_single_request(username, message, index):
         "referer": f"https://ngl.link/{username}",
         "user-agent": random.choice(USER_AGENTS)
     }
-
     payload = {
         "username": username,
         "question": message,
@@ -65,52 +42,67 @@ def send_single_request(username, message, index):
         "gameSlug": "",
         "referrer": ""
     }
+    proxies = {
+        "http": f"http://{proxy}",
+        "https": f"http://{proxy}"
+    }
 
     try:
-        response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload, proxies=proxies, timeout=10)
-        print(f"[{index+1}] {proxy} => {response.status_code}")
+        res = requests.post("https://ngl.link/api/submit", headers=headers, data=payload, proxies=proxies, timeout=10)
         return {
-            'status_code': response.status_code,
-            'success': response.status_code == 200,
-            'message': f"Đã gửi {index+1}",
-            'proxy': proxy
+            'success': res.status_code == 200,
+            'message': f"Đã gửi {index + 1}",
+            'code': res.status_code
         }
     except Exception as e:
         return {
-            'status_code': 0,
             'success': False,
-            'message': f"Lỗi gửi {index+1}",
-            'proxy': proxy
+            'message': f"Lỗi gửi {index + 1}",
+            'error': str(e)
         }
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
     data = request.json
     username = data.get('username')
-    message = data.get('message')
-    count = int(data.get('count', 1))
+    user_message = data.get('message')
+    total = int(data.get('count', 1))
 
-    if not username or count <= 0:
-        return jsonify({'error': 'Thiếu username hoặc số lần spam không hợp lệ'}), 400
+    if not username or total <= 0:
+        return jsonify({'error': 'Thiếu username hoặc số lượng không hợp lệ'}), 400
+
+    # Load proxies
+    with open('live_proxies.txt', 'r') as f:
+        proxy_list = [line.strip() for line in f if line.strip()]
+
+    jobs = []
+    index = 0
+
+    for proxy in proxy_list:
+        for _ in range(50):  # 3 thread per proxy
+            if index >= total:
+                break
+            msg = user_message or get_random_message()
+            jobs.append((username, msg, proxy, index))
+            index += 1
+        if index >= total:
+            break
 
     results = []
-    MAX_THREADS = min(100, count)
-    start = time.time()
+    start_time = time.time()
+    with ThreadPoolExecutor(max_workers=len(jobs)) as executor:
+        futures = [executor.submit(send_single, *job) for job in jobs]
+        for f in futures:
+            results.append(f.result())
 
-    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
-        futures = [
-            executor.submit(send_single_request, username, message or get_random_message(), i)
-            for i in range(count)
-        ]
-        for future in as_completed(futures):
-            results.append(future.result())
+    return jsonify({
+        'results': results,
+        'time_taken': f"{round(time.time() - start_time, 2)}s"
+    })
 
-    duration = round(time.time() - start, 2)
-    return jsonify({'results': results, 'time_taken': f"{duration}s"})
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
