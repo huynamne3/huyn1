@@ -186,12 +186,21 @@ let message = document.getElementById('message').value.trim();
 const useEmoji = document.getElementById('useEmoji').checked;
 const count = parseInt(document.getElementById('count').value);
 
-let finalMessage = message;
-
-if (useEmoji) {
-  const emojiCount = 3;
-  for (let i = 0; i < emojiCount; i++) {
-    finalMessage += ' ' + getRandomEmoji();
+if (!message) {
+  message = RANDOM_MESSAGES[Math.floor(Math.random() * RANDOM_MESSAGES.length)];
+  if (useEmoji) {
+    const emojiCount = 3;
+    for (let i = 0; i < emojiCount; i++) {
+      message += ' ' + getRandomEmoji();
+    }
+  }
+} else {
+  // Nếu có message mà vẫn muốn emoji
+  if (useEmoji) {
+    const emojiCount = 3;
+    for (let i = 0; i < emojiCount; i++) {
+      message += ' ' + getRandomEmoji();
+    }
   }
 }
 
