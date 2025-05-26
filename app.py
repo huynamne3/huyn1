@@ -110,6 +110,26 @@ def send_single_request(username, message, index):
             'response': str(e)
         }
 
+# API check username tồn tại trên NGL
+@app.route('/check-username', methods=['GET'])
+def check_username():
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'exists': False, 'error': 'Thiếu username'}), 400
+
+    try:
+        headers = {
+            "user-agent": random.choice(USER_AGENTS)
+        }
+        response = requests.get(f"https://ngl.link/{username}", headers=headers, timeout=5)
+        if response.status_code == 200 and "This page isn't available" not in response.text:
+            return jsonify({'exists': True})
+        else:
+            return jsonify({'exists': False})
+    except Exception as e:
+        print(f"[ERROR] check_username: {e}")
+        return jsonify({'exists': False, 'error': str(e)}), 500
+
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
     try:
@@ -122,6 +142,14 @@ def send_attack():
 
         if not username or count <= 0:
             return jsonify({'error': 'Thiếu username hoặc count không hợp lệ'}), 400
+
+        # Check username tồn tại trước khi spam
+        headers = {
+            "user-agent": random.choice(USER_AGENTS)
+        }
+        check_response = requests.get(f"https://ngl.link/{username}", headers=headers, timeout=5)
+        if check_response.status_code != 200 or "This page isn't available" in check_response.text:
+            return jsonify({'error': f'Username {username} không tồn tại trên ngl.link,Vui Lòng Kiểm Tra Và Nhập Lại.'}), 400
 
         results = []
         MAX_THREADS = min(200, count)
@@ -140,3 +168,5 @@ def send_attack():
         print("[ERROR] Lỗi tại /send-attack:", e)
         return jsonify({'error': str(e)}), 500
 
+if __name__ == '__main__':
+    app.run(debug=True)
