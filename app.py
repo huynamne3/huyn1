@@ -73,7 +73,7 @@ USER_AGENTS = [
 def index():
     return render_template('index.html')
 
-def send_single_request(username, message, index):
+def send_single_request(username, message, index, retries=2):
     headers = {
         "Host": "ngl.link",
         "accept": "*/*",
@@ -92,23 +92,34 @@ def send_single_request(username, message, index):
         "referrer": ""
     }
 
-    try:
-        response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload)
-        print(f"[{index+1}] Status Code: {response.status_code}")
-        return {
-            'status_code': response.status_code,
-            'success': response.status_code == 200,
-            'message': f"Đã gửi {index+1}",
-            'response': response.text
-        }
-    except Exception as e:
-        print(f"[{index+1}] Error: {e}")
-        return {
-            'status_code': 0,
-            'success': False,
-            'message': f"Lỗi ở request {index+1}",
-            'response': str(e)
-        }
+    for attempt in range(retries + 1):
+        try:
+            response = requests.post(
+                "https://ngl.link/api/submit",
+                headers=headers,
+                data=payload,
+                timeout=5
+            )
+            if response.status_code == 200:
+                print(f"[{index+1}] ✓ Thành công")
+                return {
+                    'status_code': response.status_code,
+                    'success': True,
+                    'message': f"Đã gửi {index+1} ✓"
+                }
+            else:
+                print(f"[{index+1}] ✗ Thất bại ({response.status_code})")
+        except Exception as e:
+            print(f"[{index+1}] ✗ Lỗi ({e})")
+
+        # delay nhẹ giữa lần retry
+        time.sleep(random.uniform(0.2, 0.5))
+
+    return {
+        'status_code': 0,
+        'success': False,
+        'message': f"Lỗi gửi {index+1} ✗"
+    }
 
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
@@ -118,7 +129,7 @@ def send_attack():
     count = int(data.get('count', 1))
     results = []
 
-    MAX_THREADS = min(30, count)
+    MAX_THREADS = min(10, count)  # Giảm thread để tránh bị block IP
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
         futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
         for future in as_completed(futures):
@@ -126,7 +137,6 @@ def send_attack():
 
     return jsonify({'results': results})
 
-# ✅ PHẢI đặt ngoài hàm
 if __name__ == '__main__':
     app.run(debug=True)
 
