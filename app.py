@@ -110,11 +110,12 @@ def send_single_request(username, message, index):
             'response': str(e)
         }
 
-@app.route('/check-username', methods=['GET'])
+# Flask backend
+@app.route('/check-username')
 def check_username():
     username = request.args.get('username')
-    if not username:
-        return jsonify({'exists': False, 'error': 'Thiếu username'}), 400
+    response = requests.get(f'https://ngl.link/{username}')
+    return jsonify({ "exists": response.ok })
 
     try:
         headers = {
