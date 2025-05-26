@@ -118,15 +118,14 @@ def check_username():
 
     try:
         headers = {
-            "user-agent": random.choice(USER_AGENTS)
+            "User-Agent": random.choice(USER_AGENTS)
         }
-        response = requests.get(f"https://ngl.link/{username}", headers=headers, timeout=5)
-        if response.status_code == 200 and "This page isn't available" not in response.text:
+        res = requests.get(f"https://ngl.link/{username}", headers=headers, timeout=5)
+        if res.status_code == 200 and "This page isn't available" not in res.text:
             return jsonify({'exists': True})
         else:
             return jsonify({'exists': False})
     except Exception as e:
-        print(f"[ERROR] check_username: {e}")
         return jsonify({'exists': False, 'error': str(e)}), 500
 
 @app.route('/send-attack', methods=['POST'])
