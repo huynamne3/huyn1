@@ -68,14 +68,15 @@ USER_AGENTS = [
     "DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)"
 ]
 
-# ✅ Hàm kiểm tra proxy sống
+# ✅ Hàm kiểm tra proxy sống qua HTTPS
 def is_proxy_alive(proxy):
     try:
         proxies = {
             "http": f"http://{proxy}",
             "https": f"http://{proxy}"
         }
-        response = requests.get("http://httpbin.org/ip", proxies=proxies, timeout=5)
+        # Test bằng HTTPS để đảm bảo proxy hỗ trợ CONNECT tunnel
+        response = requests.get("https://httpbin.org/ip", proxies=proxies, timeout=5)
         return response.status_code == 200
     except:
         return False
@@ -85,7 +86,7 @@ try:
     with open("proxy.txt", "r") as f:
         all_proxies = f.read().splitlines()
         PROXIES = [p for p in all_proxies if is_proxy_alive(p)]
-        print(f"✅ Đã load {len(PROXIES)} proxy sống.")
+        print(f"✅ Đã load {len(PROXIES)} proxy sống (hỗ trợ HTTPS).")
 except:
     PROXIES = []
 
@@ -113,7 +114,6 @@ def send_single_request(username, message, index):
         "referrer": ""
     }
 
-    # Lấy proxy sống (nếu còn)
     proxy = None
     if PROXIES:
         for _ in range(5):  # thử 5 proxy ngẫu nhiên
@@ -127,6 +127,7 @@ def send_single_request(username, message, index):
         "https": f"http://{proxy}"
     } if proxy else None
 
+    # Thử gửi với proxy
     try:
         with requests.Session() as session:
             response = session.post("https://ngl.link/api/submit", headers=headers, data=payload, proxies=proxies, timeout=10)
@@ -137,16 +138,30 @@ def send_single_request(username, message, index):
             'message': f"Đã gửi {index+1}",
             'response': response.text
         }
+
+    # Nếu proxy lỗi, thử lại không dùng proxy
     except Exception as e:
         print(f"[{index+1}] ❌ Lỗi với proxy {proxy}: {e}")
-        return {
-            'status_code': 0,
-            'success': False,
-            'message': f"Lỗi ở request {index+1}",
-            'response': str(e)
-        }
 
-# ✅ Gửi hàng loạt yêu cầu song song
+        try:
+            response = requests.post("https://ngl.link/api/submit", headers=headers, data=payload, timeout=10)
+            print(f"[{index+1}] 🔁 Fallback OK (Không dùng proxy) | Status: {response.status_code}")
+            return {
+                'status_code': response.status_code,
+                'success': response.status_code == 200,
+                'message': f"Đã gửi {index+1} (không proxy)",
+                'response': response.text
+            }
+        except Exception as e2:
+            print(f"[{index+1}] ❌ Lỗi khi gửi fallback không proxy: {e2}")
+            return {
+                'status_code': 0,
+                'success': False,
+                'message': f"Lỗi lần 2 ở request {index+1}",
+                'response': str(e2)
+            }
+
+# ✅ Gửi hàng loạt request song song
 @app.route('/send-attack', methods=['POST'])
 def send_attack():
     data = request.json
@@ -156,7 +171,7 @@ def send_attack():
 
     results = []
 
-    # Tính số thread hợp lý theo proxy sống
+    # Tính số thread dựa trên số proxy sống
     max_threads = max(5, min(100, len(PROXIES) * 2))
 
     with ThreadPoolExecutor(max_workers=min(max_threads, count)) as executor:
