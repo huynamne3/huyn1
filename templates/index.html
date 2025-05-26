@@ -249,18 +249,5 @@ if (!checkUsernameExists.ok) {
     scrollStatusToBottom();
   });
   </script>
-  <script>
-  // Disable right-click
-  document.addEventListener('contextmenu', event => event.preventDefault());
-
-  // Disable devtools shortcut keys
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && ['I', 'J'].includes(e.key.toUpperCase())) ||
-        (e.ctrlKey && e.key.toUpperCase() === 'U')) {
-      e.preventDefault();
-    }
-  });
-  </script>
 </body>
 </html>
