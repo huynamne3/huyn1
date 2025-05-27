@@ -113,7 +113,7 @@ def send_single_request(username, message, index, retries=2):
             print(f"[{index+1}] ✗ Lỗi ({e})")
 
         # delay nhẹ giữa lần retry
-        time.sleep(random.uniform(0.2, 0.5))
+        time.sleep(random.uniform(0.3, 0.7))
 
     return {
         'status_code': 0,
@@ -129,7 +129,7 @@ def send_attack():
     count = int(data.get('count', 1))
     results = []
 
-    MAX_THREADS = min(10, count)  # Giảm thread để tránh bị block IP
+    MAX_THREADS = min(3, count)  # Giảm thread để tránh bị block IP
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
         futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
         for future in as_completed(futures):
