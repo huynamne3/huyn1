@@ -132,10 +132,13 @@ def send_attack():
     for i in range(count):
         result = send_single_request(username, message, i)
         results.append(result)
-        # Delay ngẫu nhiên để tránh bị chặn IP
+
+        # Sau mỗi 20 tin nhắn thì nghỉ 5 giây
+        if (i + 1) % 20 == 0:
+            print(f"⏸️ Tạm nghỉ 5 giây sau {i + 1} lần gửi...")
+            time.sleep(5)
+
+        # Delay ngẫu nhiên sau mỗi lần gửi
         time.sleep(random.uniform(2.5, 4.0))
 
     return jsonify({'results': results})
-
-if __name__ == '__main__':
-    app.run(debug=True)
