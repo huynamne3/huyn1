@@ -6,9 +6,8 @@ import uuid
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-
 app = Flask(__name__, template_folder='templates')
-CORS(app)
+CORS(app
 
 # Danh sách User-Agent đa dạng
 USER_AGENTS = [
@@ -73,52 +72,53 @@ USER_AGENTS = [
 def index():
     return render_template('index.html')
 
-def send_single_request(username, message, index, retries=2):
-    headers = {
-        "Host": "ngl.link",
-        "accept": "*/*",
-        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "x-requested-with": "XMLHttpRequest",
-        "origin": "https://ngl.link",
-        "referer": f"https://ngl.link/{username}",
-        "user-agent": random.choice(USER_AGENTS)
-    }
+def send_single_request(username, message, index, retries=3):
+    for attempt in range(retries):
+        headers = {
+            "Host": "ngl.link",
+            "accept": "*/*",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "x-requested-with": "XMLHttpRequest",
+            "origin": "https://ngl.link",
+            "referer": f"https://ngl.link/{username}",
+            "user-agent": random.choice(USER_AGENTS)
+        }
 
-    payload = {
-        "username": username,
-        "question": message,
-        "deviceId": str(uuid.uuid4()),
-        "gameSlug": "",
-        "referrer": ""
-    }
+        payload = {
+            "username": username,
+            "question": message,
+            "deviceId": str(uuid.uuid4()),
+            "gameSlug": "",
+            "referrer": ""
+        }
 
-    for attempt in range(retries + 1):
         try:
             response = requests.post(
                 "https://ngl.link/api/submit",
                 headers=headers,
                 data=payload,
-                timeout=5
+                timeout=7
             )
+
             if response.status_code == 200:
-                print(f"[{index+1}] ✓ Thành công")
+                print(f"[{index+1}] ✓ Thành công (Attempt {attempt+1})")
                 return {
                     'status_code': response.status_code,
                     'success': True,
-                    'message': f"Đã gửi {index+1} ✓"
+                    'message': f"✓ {index+1}"
                 }
             else:
-                print(f"[{index+1}] ✗ Thất bại ({response.status_code})")
-        except Exception as e:
-            print(f"[{index+1}] ✗ Lỗi ({e})")
+                print(f"[{index+1}] ✗ Thất bại ({response.status_code}) (Attempt {attempt+1})")
 
-        # delay nhẹ giữa lần retry
-        time.sleep(random.uniform(0.3, 0.7))
+        except Exception as e:
+            print(f"[{index+1}] ✗ Lỗi: {e} (Attempt {attempt+1})")
+
+        time.sleep(random.uniform(1.0, 2.2))  # Delay giữa các lần retry
 
     return {
         'status_code': 0,
         'success': False,
-        'message': f"Lỗi gửi {index+1} ✗"
+        'message': f"✗ {index+1} (Hết retry)"
     }
 
 @app.route('/send-attack', methods=['POST'])
@@ -129,7 +129,7 @@ def send_attack():
     count = int(data.get('count', 1))
     results = []
 
-    MAX_THREADS = min(3, count)  # Giảm thread để tránh bị block IP
+    MAX_THREADS = min(2, count)
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
         futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
         for future in as_completed(futures):
