@@ -85,7 +85,7 @@ def send_single_request(username, message, index, retries=3):
 
         payload = {
             "username": username,
-            "question": message,
+            "question": f"{message} ❤️ {random.randint(1000,9999)}",
             "deviceId": str(uuid.uuid4()),
             "gameSlug": "",
             "referrer": ""
@@ -104,7 +104,7 @@ def send_single_request(username, message, index, retries=3):
                 return {
                     'status_code': response.status_code,
                     'success': True,
-                    'message': f"✓ {index+1}"
+                    'message': f"✓ Đã gửi {index+1}"
                 }
             else:
                 print(f"[{index+1}] ✗ Thất bại ({response.status_code}) (Attempt {attempt+1})")
@@ -112,12 +112,13 @@ def send_single_request(username, message, index, retries=3):
         except Exception as e:
             print(f"[{index+1}] ✗ Lỗi: {e} (Attempt {attempt+1})")
 
-        time.sleep(random.uniform(1.0, 2.2))  # Delay giữa các lần retry
+        # Delay giữa mỗi lần retry
+        time.sleep(random.uniform(1.5, 3.0))
 
     return {
         'status_code': 0,
         'success': False,
-        'message': f"✗ {index+1} (Hết retry)"
+        'message': f"✗ Gửi thất bại {index+1} (Hết retry)"
     }
 
 @app.route('/send-attack', methods=['POST'])
@@ -128,14 +129,13 @@ def send_attack():
     count = int(data.get('count', 1))
     results = []
 
-    MAX_THREADS = min(2, count)
-    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
-        futures = [executor.submit(send_single_request, username, message, i) for i in range(count)]
-        for future in as_completed(futures):
-            results.append(future.result())
+    for i in range(count):
+        result = send_single_request(username, message, i)
+        results.append(result)
+        # Delay ngẫu nhiên để tránh bị chặn IP
+        time.sleep(random.uniform(2.5, 4.0))
 
     return jsonify({'results': results})
 
 if __name__ == '__main__':
     app.run(debug=True)
-
