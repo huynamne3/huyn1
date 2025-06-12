@@ -3,34 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spam Ngl Link By Dang Xuan Giang</title>
+  <title>Spam NGL Link Vip</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <style>
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
     body {
-      background: linear-gradient(-45deg, #1c1f3a, #2a2950, #32305a, #1a1d2f);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
     }
-    body::before {
-      content: "DANGXUANGIANG.SITE";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      font-size: 8vw;
-      font-weight: 900;
-      color: rgba(255, 255, 255, 0.03);
-      transform: translate(-50%, -50%);
-      z-index: 0;
-      text-align: center;
-      animation: floatText 12s ease-in-out infinite;
-      pointer-events: none;
-      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(16px) saturate(160%);
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      padding: 3rem 2rem;
+      max-width: 640px;
+      width: 100%;
+    }
+    .logo {
+      max-width: 240px;
+      margin: 0 auto 1rem;
+      border-radius: 1rem;
+      animation: floatGlow 5s ease-in-out infinite, hueRotate 10s linear infinite;
+      filter: drop-shadow(0 0 18px rgba(255, 120, 0, 0.7));
+    }
+    @keyframes floatGlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes hueRotate {
+      0% { filter: drop-shadow(0 0 18px rgba(255, 120, 0, 0.7)) hue-rotate(0deg); }
+      100% { filter: drop-shadow(0 0 18px rgba(255, 120, 0, 0.7)) hue-rotate(360deg); }
     }
     @keyframes floatText {
       0%, 100% { transform: translate(-50%, -50%) rotate(-2deg); }
@@ -75,52 +84,55 @@
 }
   </style>
 </head>
+<body>
 
-<body class="min-h-screen flex flex-col justify-center items-center px-4 relative">
+  <div class="glass-card space-y-6">
+    <div class="text-center">
+      <img src="/views/tools/logoo.png" alt="Logo" class="logo">
+    </div>
 
-  <div class="bg-slate-900/70 backdrop-blur-md rounded-3xl shadow-2xl max-w-lg w-full p-10 border border-sky-500 relative z-10">
-    <h1 class="text-5xl font-extrabold text-sky-400 mb-8 text-center drop-shadow-lg rainbow-text">
-      Spam <span class="text-white">NGL Link</span>
-    </h1>
+    <h1 class="text-center text-3xl font-extrabold bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">Tool Spam NGL Link</h1>
 
-    <form id="spamForm" class="space-y-7">
+    <form id="spamForm" class="space-y-5">
       <div>
-        <label for="username" class="block mb-2 text-sm font-semibold text-slate-200">Username: (VD: https://ngl.link/test thì nhập username là test)</label>
-        <input type="text" id="username" required class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4" placeholder="Nhập username (Username là tên đằng sau ngl.link/)" />
+        <label class="font-semibold text-gray-300 block mb-1" for="username">Username:</label>
+        <input id="username" type="text" required placeholder=" (VD: https://ngl.link/test => test)" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
       </div>
+
       <div>
-        <label for="message" class="block mb-2 text-sm font-semibold text-slate-200">Message: (Nhập Lời Nhắn Hoặc Để Trống Hệ Thống Tự Ngẫu Nhiên Tin Nhắn)</label>
-        <input type="text" id="message" class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4" placeholder="Nhập lời nhắn hoặc để trống để dùng tin nhắn ngẫu nhiên" />
+        <label class="font-semibold text-gray-300 block mb-1" for="message">Message:( Nhập Tin Nhắn Muốn Gửi )</label>
+        <input id="message" type="text" placeholder="Để trống nếu muốn random" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
       </div>
-      <div class="flex items-center space-x-2">
+<div class="flex items-center space-x-2">
   <input type="checkbox" id="useEmoji" class="h-5 w-5 text-blue-600 rounded border-slate-600 bg-slate-800 focus:ring-blue-500">
   <label for="useEmoji" class="text-sm font-medium text-gray-300">Bật Emoji</label>
 </div>
       <div>
-        <label for="count" class="block mb-2 text-sm font-semibold text-slate-200">Số lần spam:</label>
-        <input type="number" id="count" value="1" min="1" class="w-full rounded-xl border border-gray-500 bg-slate-800 text-white px-5 py-4" />
+        <label class="font-semibold text-gray-300 block mb-1" for="count">Số lần gửi:</label>
+        <input id="count" type="number" value="1" min="1" max="100" step="1" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
       </div>
-      <button type="submit" class="w-full py-4 mt-6 bg-sky-500 font-extrabold rounded-xl text-white hover:bg-sky-600">
-        🚀 Send Attack
-      </button>
+
+      <button type="submit" class="w-full py-3 rounded-xl font-bold text-lg bg-blue-600 hover:bg-blue-700 transition shadow-lg">🚀 Send Attack</button>
     </form>
 
-    <div id="progressBarContainer" class="mt-6 h-2 bg-slate-700 rounded overflow-hidden">
-      <div id="progressBar" class="h-full bg-gradient-to-r from-sky-400 to-sky-600 transition-all duration-300" style="width: 0%"></div>
+    <div class="mt-4">
+      <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-300" style="width: 0%;"></div>
+      </div>
     </div>
 
-    <div class="mt-8 bg-slate-800 border border-sky-400 rounded-lg p-5 h-72 overflow-y-auto shadow-inner" id="logContainer">
-      <h2 class="text-sky-300 font-bold mb-3 text-xl">💀 Status Attacks</h2>
-      <pre id="statusBox" class="whitespace-pre-wrap text-slate-100 text-sm"></pre>
+    <div id="logContainer" class="bg-slate-800 rounded-xl p-4 h-56 overflow-y-auto text-sm font-mono shadow-inner">
+      <h2 class="font-bold text-base mb-3 select-none">💀 Status Log</h2>
+      <pre id="statusBox" class="whitespace-pre-wrap"></pre>
     </div>
-  </div>
 
-  <footer class="mt-12 text-center text-slate-400 text-sm z-10 select-none">
+<footer class="mt-12 text-center text-slate-400 text-sm z-10 select-none">
   © 2025, 
   <a href="https://zalo.me/0338210107" target="_blank" rel="noopener noreferrer" class="rainbow-footer hover:underline">
     DANG XUAN GIANG
   </a>, All Rights Reserved.
 </footer>
+  </div>
 
   <script>
   const spamForm = document.getElementById('spamForm');
@@ -132,7 +144,7 @@
     "Đã 6677 rồi còn dùng nglink trẻ trâu thế hệ mới hả em"
   ];
 
-    const EMOJIS = [
+  const EMOJIS = [
   // Meme / troll / siêu dị
   "🗿", "🥶", "💀", "☠️", "👽", "🤡", "🦍", "🫥", "😶‍🌫️", "🌚", "🌝", "🤨", "🥴", "🤯", "🥸", "🤪", "🫠",
   "🤣", "😂", "😹", "😈", "😏", "🙃", "🥵", "😭", "😱", "😳", "😡", "🤔", "😴", "🤤", "🥳", "🤡", "🦧","🖕",
@@ -167,7 +179,7 @@
   "😠", "🤬", "😈", "👿", "💀", "☠️", "💩", "🤡", "👹", "👺", "👻", "👽", "👾", "🤖"
 ];
 
-  function getRandomEmoji() {
+ function getRandomEmoji() {
     return EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
   }
 
